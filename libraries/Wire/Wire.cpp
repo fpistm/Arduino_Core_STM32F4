@@ -15,7 +15,7 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- 
+
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
 */
 
@@ -49,18 +49,18 @@ void TwoWire::begin(uint8_t address)
 
   txBufferIndex = 0;
   txBufferLength = 0;
-  
+
   transmitting = 0;
-  
+
   ownAddress = address << 1;
-  
+
   if(address == MASTER_ADDRESS)
     master = true;
   else
     master = false;
 
   i2c_custom_init(p_i2c_instance,I2C_100KHz,I2C_ADDRESSINGMODE_7BIT,ownAddress,master);
- 
+
   if(master == false){
     i2c_attachSlaveTxEvent(p_i2c_instance, reinterpret_cast<void(*)(i2c_instance_e)>(&TwoWire::onRequestService));
     i2c_attachSlaveRxEvent(p_i2c_instance, reinterpret_cast<void(*)(i2c_instance_e, uint8_t*, int)>(&TwoWire::onReceiveService));
@@ -112,14 +112,14 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
     uint8_t read = 0;
     if(I2C_OK == i2c_master_read(p_i2c_instance, address << 1, rxBuffer, quantity))
       read = quantity;
-    
+
     // set rx buffer iterator vars
     rxBufferIndex = 0;
     rxBufferLength = read;
 
     return read;
   }
-  
+
   return 0;
 }
 
@@ -162,8 +162,8 @@ void TwoWire::beginTransmission(int address)
 //	Originally, 'endTransmission' was an f(void) function.
 //	It has been modified to take one parameter indicating
 //	whether or not a STOP should be performed on the bus.
-//	Calling endTransmission(false) allows a sketch to 
-//	perform a repeated start. 
+//	Calling endTransmission(false) allows a sketch to
+//	perform a repeated start.
 //
 //	WARNING: Nothing in the library keeps track of whether
 //	the bus tenure has been properly ended with a STOP. It
@@ -174,29 +174,29 @@ void TwoWire::beginTransmission(int address)
 uint8_t TwoWire::endTransmission(uint8_t sendStop)
 {
   int8_t ret = 4;
-  
+
   if (master == true) {
     // transmit buffer (blocking)
     switch(i2c_master_write(p_i2c_instance, txAddress, txBuffer, txBufferLength))
     {
-    case I2C_OK : 
+    case I2C_OK :
       ret = 0;
     break;
-    case I2C_TIMEOUT : 
+    case I2C_TIMEOUT :
       ret = 1;
     break;
     default:
       ret = 4;
     break;
     }
-      
+
     // reset tx buffer iterator vars
     txBufferIndex = 0;
     txBufferLength = 0;
     // indicate that we are done transmitting
     transmitting = 0;
   }
-  
+
   return ret;
 }
 
@@ -223,7 +223,7 @@ size_t TwoWire::write(uint8_t data)
     // put byte in tx buffer
     txBuffer[txBufferIndex] = data;
     ++txBufferIndex;
-    // update amount in buffer   
+    // update amount in buffer
     txBufferLength = txBufferIndex;
   }else{
   // in slave send mode
@@ -265,7 +265,7 @@ int TwoWire::available(void)
 int TwoWire::read(void)
 {
   int value = -1;
-  
+
   // get each successive byte on each call
   if(rxBufferIndex < rxBufferLength){
     value = rxBuffer[rxBufferIndex];
@@ -281,7 +281,7 @@ int TwoWire::read(void)
 int TwoWire::peek(void)
 {
   int value = -1;
-  
+
   if(rxBufferIndex < rxBufferLength){
     value = rxBuffer[rxBufferIndex];
   }
@@ -301,29 +301,26 @@ void TwoWire::flush(void)
 void TwoWire::onReceiveService(i2c_instance_e p_i2c_instance, uint8_t* inBytes, int numBytes)
 {
   TwoWire *ptr;
-  
-  //p_i2c_instance = I2C_3;
+
   if(p_i2c_instance >= NB_I2C_INSTANCES) {
     return;
   } else {
     switch(p_i2c_instance)
     {
     case I2C_1:
-      ptr = &Wire1;
-    break;
-    case I2C_3:
       ptr = &Wire;
     break;
     default:
+      return;
     break;
     }
   }
-  
+
   // don't bother if user hasn't registered a callback
   if(!ptr->user_onReceive){
     return;
   }
-  
+
   // don't bother if rx buffer is in use by a master requestFrom() op
   // i know this drops data, but it allows for slight stupidity
   // meaning, they may not have read all the master requestFrom() data yet
@@ -333,7 +330,7 @@ void TwoWire::onReceiveService(i2c_instance_e p_i2c_instance, uint8_t* inBytes, 
   // copy twi rx buffer into local read buffer
   // this enables new reads to happen in parallel
   for(uint8_t i = 0; i < numBytes; ++i){
-    ptr->rxBuffer[i] = inBytes[i];    
+    ptr->rxBuffer[i] = inBytes[i];
   }
   // set rx iterator vars
   ptr->rxBufferIndex = 0;
@@ -353,16 +350,14 @@ void TwoWire::onRequestService(i2c_instance_e p_i2c_instance)
     switch(p_i2c_instance)
     {
     case I2C_1:
-      ptr = &Wire1;
-    break;
-    case I2C_3:
       ptr = &Wire;
     break;
     default:
+      return;
     break;
     }
   }
-  
+
   // don't bother if user hasn't registered a callback
   if(!ptr->user_onRequest){
     return;
@@ -391,5 +386,3 @@ void TwoWire::onRequest( void (*function)(void) )
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 TwoWire Wire = TwoWire(I2C_1); //D14-D15
-TwoWire Wire1 = TwoWire(I2C_3); //A4-A5
-

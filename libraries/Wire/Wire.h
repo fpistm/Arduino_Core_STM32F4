@@ -43,13 +43,13 @@ class TwoWire : public Stream
     uint8_t txBuffer[BUFFER_LENGTH];
     uint8_t txBufferIndex;
     uint8_t txBufferLength;
-    
+
     uint8_t transmitting;
-    
+
     uint8_t ownAddress;
     bool master;
-    i2c_instance_e p_i2c_instance; 
-    
+    i2c_instance_e p_i2c_instance;
+
     void (*user_onRequest)(void);
     void (*user_onReceive)(int);
     static void onRequestService(i2c_instance_e);
@@ -88,7 +88,5 @@ class TwoWire : public Stream
 };
 
 extern TwoWire Wire;
-extern TwoWire Wire1;
 
 #endif
-
