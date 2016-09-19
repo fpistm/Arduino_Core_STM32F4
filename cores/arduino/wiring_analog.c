@@ -82,20 +82,22 @@ uint32_t analogRead(uint32_t ulPin)
   //put mask only to have the lower digits
   uint32_t apin = ulPin&0x0000000F;
   int i;
-  
+
   if(ulPin>MAX_DIGITAL_IOS) {
     return 0;
   }
-  
+
   ulPin = pinConvert(ulPin);
-  
+
   //find the pin.
   i = get_pin_description(apin, ulPin);
   if((i<0) && (apin < MAX_ANALOG_IOS))
     return 0;
-  
-  g_anInputPinConfigured[apin] = g_APinDescription[i];
-  
+
+  g_anInputPinConfigured[apin].ulPin = g_APinDescription[i].ulPin;
+  g_anInputPinConfigured[apin].ulPort = g_APinDescription[i].ulPort;
+  g_anInputPinConfigured[apin].mode = g_APinDescription[i].mode;
+
   if(g_anInputPinConfigured[apin].configured == false) {
     do_init = 1;
     g_anInputPinConfigured[apin].configured = true;
@@ -123,18 +125,20 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
   uint32_t attr = 0;
   int i;
   uint8_t do_init = 0;
-  
+
   if(ulPin>MAX_DIGITAL_IOS) {
     return;
   }
 
   //find the pin.
-  i = get_pin_description(apin, ulPin); 
-  if((i<0) && (apin < MAX_DIGITAL_IOS)) 
+  i = get_pin_description(apin, ulPin);
+  if((i<0) && (apin < MAX_DIGITAL_IOS))
     return;
-  
-  g_anOutputPinConfigured[apin] = g_APinDescription[i];
-  
+
+  g_anOutputPinConfigured[apin].ulPin = g_APinDescription[i].ulPin;
+  g_anOutputPinConfigured[apin].ulPort = g_APinDescription[i].ulPort;
+  g_anOutputPinConfigured[apin].mode = g_APinDescription[i].mode;
+
   if(g_anOutputPinConfigured[apin].configured == false) {
     do_init = 1;
     g_anOutputPinConfigured[apin].configured = true;
@@ -157,7 +161,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
                     PWM_FREQUENCY*PWM_MAX_DUTY_CYCLE,
                     PWM_MAX_DUTY_CYCLE,
                     ulValue, do_init);
-                    
+
   } else { //DIGITAL PIN ONLY
     // Defaults to digital write
     pinMode(ulPin, OUTPUT);

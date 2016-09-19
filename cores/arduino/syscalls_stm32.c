@@ -42,9 +42,9 @@
 // Helper macro to mark unused parameters and prevent compiler warnings.
 // Appends _UNUSED to the variable name to prevent accidentally using them.
 #ifdef __GNUC__
-#  define UNUSED(x) x ## _UNUSED __attribute__((__unused__))
+#define UNUSED(x) x ## _UNUSED __attribute__((__unused__))
 #else
-#  define UNUSED(x) x ## _UNUSED
+#define UNUSED(x) x ## _UNUSED
 #endif
 
 /*----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ extern int _write( UNUSED(int file), char *ptr, int len )
   int iIndex = 0;
 
   for ( iIndex=0 ; iIndex < len ; iIndex++) {
-    uart_write(USART2_E, ptr[iIndex]);
+    uart_write(USART3_E, ptr[iIndex]);
   }
   return iIndex ;
 }

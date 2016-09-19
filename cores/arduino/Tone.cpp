@@ -47,7 +47,7 @@ void noTone(uint8_t _pin)
   uint32_t i = 0;
 
   for(i = 0; i < NB_PIN_DESCRIPTIONS; i++) {
-    if(g_APinDescription[i].arduino_id == _pin) 
+    if(g_APinDescription[i].arduino_id == _pin)
       TimerPinDeinit(g_APinDescription[i].ulPort, g_APinDescription[i].ulPin);
   }
   digitalWrite(_pin, 0);
