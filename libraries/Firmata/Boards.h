@@ -665,25 +665,23 @@ writePort(port, value, bitmask):  Write an 8 bit port.
 #define PIN_TO_PWM(p)           PIN_TO_DIGITAL(p)
 #define PIN_TO_SERVO(p)         ((p) - 2)
 
-// Nucleo STM32L476
+// Nucleo STM32F429
 #elif defined(STM32)
 #define TOTAL_ANALOG_PINS       MAX_ANALOG_IOS  //7
 #define TOTAL_PINS              MAX_DIGITAL_IOS //22 : All pins can be digital
 #define TOTAL_PORTS             3
 #define VERSION_BLINK_PIN       LED_BUILTIN
-#define PIN_SERIAL_RX           0
-#define PIN_SERIAL_TX           1
-#define PIN_SERIAL1_RX          2
-#define PIN_SERIAL1_TX          8
-#define PIN_SERIAL2_RX          0
-#define PIN_SERIAL2_TX          1
-#define PIN_SERIAL3_RX          17
-#define PIN_SERIAL3_TX          16
+#define PIN_SERIAL_RX           9
+#define PIN_SERIAL_TX           8
+#define PIN_SERIAL1_RX          0
+#define PIN_SERIAL1_TX          1
+#define PIN_SERIAL2_RX          8
+#define PIN_SERIAL2_TX          9
 #define IS_PIN_DIGITAL(p)       ((p) >= 2 && (p) < TOTAL_PINS)
 #define IS_PIN_ANALOG(p)        ((p) >= 16 && (p) < TOTAL_PINS)
 #define IS_PIN_PWM(p)           ((p) == 3 || (p) == 5 || (p) == 6 || (p) == 9 || (p) == 10 || (p) == 11)
 #define IS_PIN_SERVO(p)         IS_PIN_DIGITAL((p))
-#define IS_PIN_I2C(p)           ((p) == 14 || (p) == 15 || (p) == 20 || (p) == 21)
+#define IS_PIN_I2C(p)           ((p) == 14 || (p) == 15)
 #define IS_PIN_SPI(p)           ((p) == SS || (p) == MOSI || (p) == MISO || (p) == SCK)
 #define IS_PIN_SERIAL(p)        ((p) == 0 || (p) == 1)
 #define PIN_TO_DIGITAL(p)       (p)
