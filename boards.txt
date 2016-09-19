@@ -1,0 +1,25 @@
+# See: http://code.google.com/p/arduino/wiki/Platforms
+
+################################################################################
+# NUCLEO-L476RG board
+
+NUCLEO-L476RG.name=NUCLEO-L476RG
+
+NUCLEO-L476RG.vid.0=0x0483
+NUCLEO-L476RG.pid.0=0x374b
+NUCLEO-L476RG.node=NODE_L476RG
+
+NUCLEO-L476RG.upload.tool=nucleoFlasher
+NUCLEO-L476RG.upload.protocol=nucleoFlasher
+NUCLEO-L476RG.upload.maximum_size=1048576
+NUCLEO-L476RG.upload.maximum_data_size=131072
+
+NUCLEO-L476RG.build.mcu=cortex-m4
+NUCLEO-L476RG.build.board=NUCLEO-L476RG
+NUCLEO-L476RG.build.core=arduino
+NUCLEO-L476RG.build.ldscript=linker_scripts/gcc/STM32L476RG_FLASH.ld
+NUCLEO-L476RG.build.variant=STM32L476RG-Nucleo
+NUCLEO-L476RG.build.variant_system_lib=libstm32l4_nucleo-l476rg_gcc_rel.a
+NUCLEO-L476RG.build.extra_flags=-mthumb -DSTM32L476xx
+
+################################################################################
