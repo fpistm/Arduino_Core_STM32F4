@@ -72,7 +72,7 @@ class SPISettings {
       } else if (clock >= SPI_SPEED_CLOCK_DIV128_MHZ) {
         clk = SPI_SPEED_CLOCK_DIV128_MHZ;
       } else {
-        clk = SPI_SPEED_CLOCK_DIV256_MHZ;
+        clk = SPI_SPEED_CLOCK_DIV16_MHZ;
       }
 
       if(bitOrder == MSBFIRST) {
@@ -94,7 +94,7 @@ class SPISettings {
 
     }
     SPISettings() {
-      clk = SPI_SPEED_CLOCK_DIV64_MHZ;
+      clk = SPI_SPEED_CLOCK_DIV16_MHZ;
       bOrder = MSBFIRST;
       msb = 1;
       dMode = SPI_MODE_0;

@@ -205,7 +205,7 @@ void spi_init(spi_instance_e spi_id, uint32_t speed, spi_mode_e mode, uint8_t ms
   } else if (speed >= SPI_SPEED_CLOCK_DIV256_MHZ) {
       spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   } else {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   }
 
   if((mode == SPI_MODE_0)||(mode == SPI_MODE_1)) {
