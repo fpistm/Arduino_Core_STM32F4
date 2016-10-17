@@ -50,6 +50,8 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+
+void SystemClock_Config(void);
 void hw_config_init(void);
 
 #ifdef __cplusplus

@@ -33,6 +33,7 @@
 #include "include/timer.h"
 #include "include/twi.h"
 #include "include/stm32_eeprom.h"
+#include "include/usbd_desc.h"
 
 /* Define attribute */
 #if defined (  __GNUC__  ) /* GCC CS3 */
