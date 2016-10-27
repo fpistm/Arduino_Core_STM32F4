@@ -20,16 +20,6 @@
 #define ARDUINO_MAIN
 #include "Arduino.h"
 
-/*
- * Cortex-M3 Systick IT handler
- */
-/*
-extern void SysTick_Handler( void )
-{
-  // Increment tick count each ms
-  TimeTick_Increment() ;
-}
-*/
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -41,18 +31,15 @@ void initVariant() { }
  */
 int main( void )
 {
-	// Initialize watchdog
-	//watchdogSetup();
-
 	init();
 
 	initVariant();
 
 	delay(1);
 
-#if defined(USBCON)
-	USBDevice.attach();
-#endif
+	#if defined(USBCON)
+	usbd_interface_init();
+	#endif
 
 	setup();
 

@@ -34,6 +34,8 @@
 #include "include/twi.h"
 #include "include/stm32_eeprom.h"
 #include "include/usbd_desc.h"
+#include "include/usbd_hid_composite.h"
+#include "include/usb_interface.h"
 
 /* Define attribute */
 #if defined (  __GNUC__  ) /* GCC CS3 */

@@ -340,7 +340,6 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   g_hpcd.Init.speed = PCD_SPEED_FULL;
   g_hpcd.Init.vbus_sensing_enable = 1;
   g_hpcd.Init.lpm_enable = 0;
-
   /* Link The driver to the stack */
   g_hpcd.pData = pdev;
   pdev->pData = &g_hpcd;
@@ -350,7 +349,8 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
 
   HAL_PCDEx_SetRxFiFo(&g_hpcd, 0x80);
   HAL_PCDEx_SetTxFiFo(&g_hpcd, 0, 0x40);
-  HAL_PCDEx_SetTxFiFo(&g_hpcd, 1, 0x80);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 1, 0x10);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 2, 0x10);
 
   return USBD_OK;
 }

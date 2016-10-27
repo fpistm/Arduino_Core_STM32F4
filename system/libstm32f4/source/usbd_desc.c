@@ -57,15 +57,15 @@
 
 //ID STMicroelectronics
 #define USBD_VID                      0x0483
-#define USBD_PID                      0x5710
+#define USBD_PID                      0x5711
 #define USBD_LANGID_STRING            0x409
 #define USBD_MANUFACTURER_STRING      "STMicroelectronics"
-#define USBD_PRODUCT_HS_STRING        "NUCLEO-F429ZI USB HID in HS Mode"
-#define USBD_PRODUCT_FS_STRING        "NUCLEO-F429ZI USB HID in FS Mode"
-#define USBD_CONFIGURATION_HS_STRING  "HID Config"
-#define USBD_INTERFACE_HS_STRING      "HID Interface"
-#define USBD_CONFIGURATION_FS_STRING  "HID Config"
-#define USBD_INTERFACE_FS_STRING      "HID Interface"
+#define USBD_PRODUCT_HS_STRING        "NUCLEO-F429ZI Mouse & Keyboard HID in HS Mode"
+#define USBD_PRODUCT_FS_STRING        "NUCLEO-F429ZI Mouse & Keyboard HID in FS Mode"
+#define USBD_CONFIGURATION_HS_STRING  "Mouse & Keyboard HID Config"
+#define USBD_INTERFACE_HS_STRING      "Mouse & Keyboard HID Interface"
+#define USBD_CONFIGURATION_FS_STRING  "Mouse & Keyboard HID Config"
+#define USBD_INTERFACE_FS_STRING      "Mouse & Keyboard HID Interface"
 
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
