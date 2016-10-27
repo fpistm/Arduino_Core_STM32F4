@@ -20,12 +20,9 @@
 */
 
 #include "Mouse.h"
-#include "usbd_hid.h"
-#include "usbd_desc.h"
+#include "usbd_hid_composite.h"
 
 #if defined(USBCON)
-
-static USBD_HandleTypeDef g_USBD_Device;
 
 //================================================================================
 //================================================================================
@@ -37,23 +34,10 @@ Mouse_::Mouse_(void) : _buttons(0)
 
 void Mouse_::begin(void)
 {
-  /* Init Device Library */
-  USBD_Init(&g_USBD_Device, &HID_Desc, 0);
-
-  /* Add Supported Class */
-  USBD_RegisterClass(&g_USBD_Device, USBD_HID_CLASS);
-
-  /* Start Device Process */
-  USBD_Start(&g_USBD_Device);
 }
 
 void Mouse_::end(void)
 {
-  /* Stop Device Process */
-  USBD_Stop(&g_USBD_Device);
-
-  /* Deinit Device Library */
-  USBD_DeInit(&g_USBD_Device);
 }
 
 void Mouse_::click(uint8_t b)
@@ -72,7 +56,7 @@ void Mouse_::move(signed char x, signed char y, signed char wheel)
 	m[2] = y;
 	m[3] = wheel;
 
-  USBD_HID_SendReport(&g_USBD_Device, m, 4);
+  usbd_interface_mouse_sendReport(m, 4);
 }
 
 void Mouse_::buttons(uint8_t b)
