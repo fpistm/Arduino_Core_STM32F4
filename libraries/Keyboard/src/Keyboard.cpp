@@ -20,12 +20,9 @@
 */
 
 #include "Keyboard.h"
-#include "HID/usbd_hid_keyboard.h"
-#include "usbd_desc.h"
+#include "usbd_hid_composite.h"
 
 #if defined(USBCON)
-
-static USBD_HandleTypeDef g_USBD_Device;
 
 //================================================================================
 //================================================================================
@@ -37,23 +34,10 @@ Keyboard_::Keyboard_(void)
 
 void Keyboard_::begin(void)
 {
-  /* Init Device Library */
-  USBD_Init(&g_USBD_Device, &HID_Desc, 0);
-
-  /* Add Supported Class */
-  USBD_RegisterClass(&g_USBD_Device, USBD_HID_KEYBOARD_CLASS);
-
-  /* Start Device Process */
-  USBD_Start(&g_USBD_Device);
 }
 
 void Keyboard_::end(void)
 {
-  /* Stop Device Process */
-  USBD_Stop(&g_USBD_Device);
-
-  /* Deinit Device Library */
-  USBD_DeInit(&g_USBD_Device);
 }
 
 void Keyboard_::sendReport(KeyReport* keys)
@@ -61,7 +45,7 @@ void Keyboard_::sendReport(KeyReport* keys)
   uint8_t buf[8] = {keys->modifiers, keys->reserved, keys->keys[0], keys->keys[1],
                     keys->keys[2], keys->keys[3], keys->keys[4], keys->keys[5]};
 
-  USBD_HID_SendReport(&g_USBD_Device, buf, 8);
+  usbd_interface_keyboard_sendReport(buf, 8);
 
   //delay required to prevent persistent key when call print
   delay(20);
