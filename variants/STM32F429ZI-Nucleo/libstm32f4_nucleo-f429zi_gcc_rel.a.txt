@@ -237,7 +237,7 @@ stm32f4xx_hal_cec.o:
 
 stm32f4xx_hal_dma.o:
 00000000 t DMA_CalcBaseAndBitshift
-00000000 r flagBitshiftOffset.8249
+00000000 r flagBitshiftOffset.8639
 00000000 T HAL_DMA_Abort
 00000000 T HAL_DMA_Abort_IT
 00000000 T HAL_DMA_DeInit
@@ -364,6 +364,53 @@ stm32f4xx_hal_tim.o:
 00000000 T TIM_TI1_SetConfig
 
 stm32f4xx_ll_usb.o:
+00000000 b debug.8575
+         U HAL_Delay
+00000000 T USB_ActivateDedicatedEndpoint
+00000000 T USB_ActivateEndpoint
+00000000 T USB_ActivateSetup
+00000000 T USB_ClearInterrupts
+00000000 T USB_CoreInit
+00000000 t USB_CoreReset
+00000000 T USB_DeactivateDedicatedEndpoint
+00000000 T USB_DeactivateEndpoint
+00000000 T USB_DevConnect
+00000000 T USB_DevDisconnect
+00000000 T USB_DevInit
+00000000 T USB_DisableGlobalInt
+00000000 T USB_DoPing
+00000000 T USB_DriveVbus
+00000000 T USB_EnableGlobalInt
+00000000 T USB_EP0_OutStart
+00000000 T USB_EP0StartXfer
+00000000 T USB_EPClearStall
+00000000 T USB_EPSetStall
+00000000 T USB_EPStartXfer
+00000000 T USB_FlushRxFifo
+00000000 T USB_FlushTxFifo
+00000000 T USB_GetCurrentFrame
+00000000 T USB_GetDevSpeed
+00000000 T USB_GetHostSpeed
+00000000 T USB_GetMode
+00000000 T USB_HC_Halt
+00000000 T USB_HC_Init
+00000000 T USB_HC_ReadInterrupt
+00000000 T USB_HC_StartXfer
+00000000 T USB_HostInit
+00000000 T USB_InitFSLSPClkSel
+00000000 T USB_ReadDevAllInEpInterrupt
+00000000 T USB_ReadDevAllOutEpInterrupt
+00000000 T USB_ReadDevInEPInterrupt
+00000000 T USB_ReadDevOutEPInterrupt
+00000000 T USB_ReadInterrupts
+00000000 T USB_ReadPacket
+00000000 T USB_ResetPort
+00000000 T USB_SetCurrentMode
+00000000 T USB_SetDevAddress
+00000000 T USB_SetDevSpeed
+00000000 T USB_StopDevice
+00000000 T USB_StopHost
+00000000 T USB_WritePacket
 
 stm32f4xx_hal_cortex.o:
 00000000 T HAL_MPU_ConfigRegion
@@ -389,6 +436,45 @@ stm32f4xx_hal_dma_ex.o:
 00000000 T HAL_DMAEx_MultiBufferStart_IT
 
 stm32f4xx_hal_hcd.o:
+00000000 W HAL_HCD_Connect_Callback
+00000000 T HAL_HCD_DeInit
+00000000 W HAL_HCD_Disconnect_Callback
+00000000 T HAL_HCD_GetCurrentFrame
+00000000 T HAL_HCD_GetCurrentSpeed
+00000000 T HAL_HCD_GetState
+00000000 T HAL_HCD_HC_GetState
+00000000 T HAL_HCD_HC_GetURBState
+00000000 T HAL_HCD_HC_GetXferCount
+00000000 T HAL_HCD_HC_Halt
+00000000 T HAL_HCD_HC_Init
+00000000 W HAL_HCD_HC_NotifyURBChange_Callback
+00000000 T HAL_HCD_HC_SubmitRequest
+00000000 T HAL_HCD_Init
+00000000 T HAL_HCD_IRQHandler
+00000000 W HAL_HCD_MspDeInit
+00000000 W HAL_HCD_MspInit
+00000000 T HAL_HCD_ResetPort
+00000000 W HAL_HCD_SOF_Callback
+00000000 T HAL_HCD_Start
+00000000 T HAL_HCD_Stop
+         U USB_CoreInit
+         U USB_DisableGlobalInt
+         U USB_DriveVbus
+         U USB_EnableGlobalInt
+         U USB_GetCurrentFrame
+         U USB_GetHostSpeed
+         U USB_GetMode
+         U USB_HC_Halt
+         U USB_HC_Init
+         U USB_HC_ReadInterrupt
+         U USB_HC_StartXfer
+         U USB_HostInit
+         U USB_InitFSLSPClkSel
+         U USB_ReadInterrupts
+         U USB_ReadPacket
+         U USB_ResetPort
+         U USB_SetCurrentMode
+         U USB_StopHost
 
 stm32f4xx_hal_nand.o:
 
@@ -568,6 +654,67 @@ stm32f4xx_hal_flash.o:
 stm32f4xx_hal_i2s.o:
 
 stm32f4xx_hal_pcd.o:
+00000000 T HAL_PCD_ActivateRemoteWakeup
+00000000 W HAL_PCD_ConnectCallback
+00000000 W HAL_PCD_DataInStageCallback
+00000000 W HAL_PCD_DataOutStageCallback
+00000000 T HAL_PCD_DeActivateRemoteWakeup
+00000000 T HAL_PCD_DeInit
+00000000 T HAL_PCD_DevConnect
+00000000 T HAL_PCD_DevDisconnect
+00000000 W HAL_PCD_DisconnectCallback
+00000000 T HAL_PCD_EP_Close
+00000000 T HAL_PCD_EP_ClrStall
+00000000 T HAL_PCD_EP_Flush
+00000000 T HAL_PCD_EP_GetRxCount
+00000000 T HAL_PCD_EP_Open
+00000000 T HAL_PCD_EP_Receive
+00000000 T HAL_PCD_EP_SetStall
+00000000 T HAL_PCD_EP_Transmit
+00000000 T HAL_PCD_GetState
+00000000 T HAL_PCD_Init
+00000000 T HAL_PCD_IRQHandler
+00000000 W HAL_PCD_ISOINIncompleteCallback
+00000000 W HAL_PCD_ISOOUTIncompleteCallback
+00000000 W HAL_PCD_MspDeInit
+00000000 W HAL_PCD_MspInit
+00000000 W HAL_PCD_ResetCallback
+00000000 W HAL_PCD_ResumeCallback
+00000000 T HAL_PCD_SetAddress
+00000000 W HAL_PCD_SetupStageCallback
+00000000 W HAL_PCD_SOFCallback
+00000000 T HAL_PCD_Start
+00000000 T HAL_PCD_Stop
+00000000 W HAL_PCD_SuspendCallback
+         U HAL_RCC_GetHCLKFreq
+         U USB_ActivateEndpoint
+         U USB_ActivateSetup
+         U USB_CoreInit
+         U USB_DeactivateEndpoint
+         U USB_DevConnect
+         U USB_DevDisconnect
+         U USB_DevInit
+         U USB_DisableGlobalInt
+         U USB_EnableGlobalInt
+         U USB_EP0_OutStart
+         U USB_EP0StartXfer
+         U USB_EPClearStall
+         U USB_EPSetStall
+         U USB_EPStartXfer
+         U USB_FlushRxFifo
+         U USB_FlushTxFifo
+         U USB_GetDevSpeed
+         U USB_GetMode
+         U USB_ReadDevAllInEpInterrupt
+         U USB_ReadDevAllOutEpInterrupt
+         U USB_ReadDevInEPInterrupt
+         U USB_ReadDevOutEPInterrupt
+         U USB_ReadInterrupts
+         U USB_ReadPacket
+         U USB_SetCurrentMode
+         U USB_SetDevAddress
+         U USB_StopDevice
+         U USB_WritePacket
 
 stm32f4xx_hal_sai_ex.o:
 
@@ -666,6 +813,8 @@ stm32f4xx_hal_flash_ex.o:
 stm32f4xx_hal_i2s_ex.o:
 
 stm32f4xx_hal_pcd_ex.o:
+00000000 T HAL_PCDEx_SetRxFiFo
+00000000 T HAL_PCDEx_SetTxFiFo
 
 stm32f4xx_hal_sd.o:
 
@@ -714,7 +863,7 @@ stm32f4xx_hal_uart.o:
 00000000 t UART_EndRxTransfer
 00000000 t UART_Receive_IT
 00000000 t UART_SetConfig
-00000000 t UART_WaitOnFlagUntilTimeout.constprop.2
+00000000 t UART_WaitOnFlagUntilTimeout.constprop.3
 
 stm32f4xx_hal_dac_ex.o:
 00000000 T DAC_DMAConvCpltCh2
@@ -756,6 +905,43 @@ stm32f4xx_hal_sdram.o:
 
 stm32f4xx_hal_usart.o:
 
+usb_interface.o:
+00000000 b g_USBD_Device
+         U HID_Desc
+         U USBD_COMPOSITE_HID
+         U USBD_HID_KEYBOARD_SendReport
+         U USBD_HID_MOUSE_SendReport
+         U USBD_Init
+00000000 T usbd_interface_init
+00000000 T usbd_interface_keyboard_sendReport
+00000000 T usbd_interface_mouse_sendReport
+         U USBD_RegisterClass
+         U USBD_Start
+
+usbd_hid_composite.o:
+         U free
+00000000 d HID_KEYBOARD_ReportDesc
+00000000 d HID_MOUSE_ReportDesc
+         U malloc
+00000000 D USBD_COMPOSITE_HID
+00000000 t USBD_COMPOSITE_HID_Setup
+         U USBD_CtlError
+         U USBD_CtlSendData
+00000000 d USBD_HID_CfgDesc
+00000000 t USBD_HID_DataIn
+00000000 t USBD_HID_DeInit
+00000000 d USBD_HID_DeviceQualifierDesc
+00000000 t USBD_HID_GetCfgDesc
+00000000 t USBD_HID_GetDeviceQualifierDesc
+00000000 T USBD_HID_GetPollingInterval
+00000000 t USBD_HID_Init
+00000000 T USBD_HID_KEYBOARD_SendReport
+00000000 T USBD_HID_MOUSE_SendReport
+         U USBD_LL_CloseEP
+         U USBD_LL_OpenEP
+         U USBD_LL_Transmit
+00000000 d USBD_MOUSE_HID_Desc
+
 hw_config.o:
 00000000 T BusFault_Handler
 00000000 T DebugMon_Handler
@@ -771,6 +957,7 @@ hw_config.o:
 00000000 T hw_config_init
 00000000 T MemManage_Handler
 00000000 T NMI_Handler
+00000000 T SystemClock_Config
 00000000 T UsageFault_Handler
 
 uart.o:
@@ -838,6 +1025,72 @@ uart.o:
 00000000 t usart6_force_reset
 00000000 T USART6_IRQHandler
 00000000 t usart6_release_reset
+
+usbd_conf.o:
+000003b8 C g_hpcd
+         U HAL_Delay
+         U HAL_GPIO_Init
+         U HAL_NVIC_EnableIRQ
+         U HAL_NVIC_SetPriority
+00000000 T HAL_PCD_ConnectCallback
+00000000 T HAL_PCD_DataInStageCallback
+00000000 T HAL_PCD_DataOutStageCallback
+         U HAL_PCD_DeInit
+00000000 T HAL_PCD_DisconnectCallback
+         U HAL_PCD_EP_Close
+         U HAL_PCD_EP_ClrStall
+         U HAL_PCD_EP_Flush
+         U HAL_PCD_EP_GetRxCount
+         U HAL_PCD_EP_Open
+         U HAL_PCD_EP_Receive
+         U HAL_PCD_EP_SetStall
+         U HAL_PCD_EP_Transmit
+         U HAL_PCDEx_SetRxFiFo
+         U HAL_PCDEx_SetTxFiFo
+         U HAL_PCD_Init
+         U HAL_PCD_IRQHandler
+00000000 T HAL_PCD_ISOINIncompleteCallback
+00000000 T HAL_PCD_ISOOUTIncompleteCallback
+00000000 T HAL_PCD_MspDeInit
+00000000 T HAL_PCD_MspInit
+00000000 T HAL_PCD_ResetCallback
+00000000 T HAL_PCD_ResumeCallback
+         U HAL_PCD_SetAddress
+00000000 T HAL_PCD_SetupStageCallback
+00000000 T HAL_PCD_SOFCallback
+         U HAL_PCD_Start
+         U HAL_PCD_Stop
+00000000 T HAL_PCD_SuspendCallback
+00000000 T OTG_FS_IRQHandler
+00000000 T OTG_FS_WKUP_IRQHandler
+         U SystemClock_Config
+00000000 T USBD_LL_ClearStallEP
+00000000 T USBD_LL_CloseEP
+         U USBD_LL_DataInStage
+         U USBD_LL_DataOutStage
+00000000 T USBD_LL_DeInit
+00000000 T USBD_LL_Delay
+         U USBD_LL_DevConnected
+         U USBD_LL_DevDisconnected
+00000000 T USBD_LL_FlushEP
+00000000 T USBD_LL_GetRxDataSize
+00000000 T USBD_LL_Init
+         U USBD_LL_IsoINIncomplete
+         U USBD_LL_IsoOUTIncomplete
+00000000 T USBD_LL_IsStallEP
+00000000 T USBD_LL_OpenEP
+00000000 T USBD_LL_PrepareReceive
+         U USBD_LL_Reset
+         U USBD_LL_Resume
+         U USBD_LL_SetSpeed
+         U USBD_LL_SetupStage
+00000000 T USBD_LL_SetUSBAddress
+         U USBD_LL_SOF
+00000000 T USBD_LL_StallEP
+00000000 T USBD_LL_Start
+00000000 T USBD_LL_Stop
+         U USBD_LL_Suspend
+00000000 T USBD_LL_Transmit
 
 stm32_eeprom.o:
 00000000 T eeprom_read_byte
@@ -971,7 +1224,7 @@ uart_emul.o:
 00000000 t UART_Emul_DMAReceiveCplt
 00000000 t UART_Emul_DMATransmitCplt
 00000000 T UART_EMUL_EXTI_RX
-00000000 t UART_Emul_ReceiveFormatFrame.constprop.0
+00000000 t UART_Emul_ReceiveFormatFrame.constprop.1
 00000000 t UART_Emul_SetConfig_DMARx
 00000000 t UART_Emul_SetConfig_DMATx
 00000000 t UART_Emul_TransmitFormatFrame
@@ -1031,6 +1284,22 @@ clock.o:
 00000000 T HAL_TIM6_PeriodElapsedCallback
 00000000 T SysTick_Handler
          U TimerHandleInit
+
+usbd_desc.o:
+00000000 D HID_Desc
+00000000 t IntToUnicode
+00000000 d USBD_DeviceDesc
+         U USBD_GetString
+00000000 t USBD_HID_ConfigStrDescriptor
+00000000 t USBD_HID_DeviceDescriptor
+00000000 t USBD_HID_InterfaceStrDescriptor
+00000000 t USBD_HID_LangIDStrDescriptor
+00000000 t USBD_HID_ManufacturerStrDescriptor
+00000000 t USBD_HID_ProductStrDescriptor
+00000000 t USBD_HID_SerialStrDescriptor
+00000000 d USBD_LangIDDesc
+00000000 b USBD_StrDesc
+00000000 d USBD_StringSerial
 
 timer.o:
 00000000 T attachIntHandle
@@ -1127,6 +1396,73 @@ system_stm32f4xx.o:
 00000000 D SystemCoreClock
 00000000 T SystemCoreClockUpdate
 00000000 T SystemInit
+
+usbd_core.o:
+         U iprintf
+00000000 T USBD_ClrClassConfig
+         U USBD_CtlContinueRx
+         U USBD_CtlContinueSendData
+         U USBD_CtlReceiveStatus
+         U USBD_CtlSendStatus
+00000000 T USBD_DeInit
+00000000 T USBD_Init
+00000000 T USBD_LL_DataInStage
+00000000 T USBD_LL_DataOutStage
+         U USBD_LL_DeInit
+00000000 T USBD_LL_DevConnected
+00000000 T USBD_LL_DevDisconnected
+         U USBD_LL_Init
+00000000 T USBD_LL_IsoINIncomplete
+00000000 T USBD_LL_IsoOUTIncomplete
+         U USBD_LL_OpenEP
+         U USBD_LL_PrepareReceive
+00000000 T USBD_LL_Reset
+00000000 T USBD_LL_Resume
+00000000 T USBD_LL_SetSpeed
+00000000 T USBD_LL_SetupStage
+00000000 T USBD_LL_SOF
+         U USBD_LL_StallEP
+         U USBD_LL_Start
+         U USBD_LL_Stop
+00000000 T USBD_LL_Suspend
+         U USBD_ParseSetupRequest
+00000000 T USBD_RegisterClass
+00000000 T USBD_RunTestMode
+00000000 T USBD_SetClassConfig
+00000000 T USBD_Start
+         U USBD_StdDevReq
+         U USBD_StdEPReq
+         U USBD_StdItfReq
+00000000 T USBD_Stop
+
+usbd_ctlreq.o:
+00000000 b cfgidx.9226
+         U USBD_ClrClassConfig
+00000000 T USBD_CtlError
+         U USBD_CtlSendData
+         U USBD_CtlSendStatus
+00000000 T USBD_GetString
+         U USBD_LL_ClearStallEP
+         U USBD_LL_IsStallEP
+         U USBD_LL_SetUSBAddress
+         U USBD_LL_StallEP
+00000000 T USBD_ParseSetupRequest
+         U USBD_SetClassConfig
+00000000 T USBD_StdDevReq
+00000000 T USBD_StdEPReq
+00000000 T USBD_StdItfReq
+
+usbd_ioreq.o:
+00000000 T USBD_CtlContinueRx
+00000000 T USBD_CtlContinueSendData
+00000000 T USBD_CtlPrepareRx
+00000000 T USBD_CtlReceiveStatus
+00000000 T USBD_CtlSendData
+00000000 T USBD_CtlSendStatus
+00000000 T USBD_GetRxCount
+         U USBD_LL_GetRxDataSize
+         U USBD_LL_PrepareReceive
+         U USBD_LL_Transmit
 
 startup_stm32f429xx.o:
 00000000 W ADC_IRQHandler
