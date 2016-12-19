@@ -197,8 +197,8 @@ create_output:
 #	@echo *$(A_SRC)
 #	@echo -------------------------
 
-	-@mkdir $(subst /,$(SEP),$(OUTPUT_BIN)) 1>$(DEV_NUL) 2>&1
-	-@mkdir $(OUTPUT_PATH) 1>$(DEV_NUL) 2>&1
+	-@mkdir -p $(subst /,$(SEP),$(OUTPUT_BIN)) 1>$(DEV_NUL) 2>&1
+	-@mkdir -p $(OUTPUT_PATH) 1>$(DEV_NUL) 2>&1
 	@echo ------------------------------------------------------------------------
 
 $(addprefix $(OUTPUT_PATH)/,$(C_OBJ)): $(OUTPUT_PATH)/%.o: %.c
