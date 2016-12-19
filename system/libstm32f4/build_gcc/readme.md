@@ -5,7 +5,7 @@ gurantees.
 
 Build process options:
   make all              Build library for all target
-  make NUCLEO-F429ZI    Build library for one target
+  make NUCLEO_F429ZI    Build library for one target
   make clean            Delete all files created (.o, .a)
 
 The build process create one library per target and copy the library inside the

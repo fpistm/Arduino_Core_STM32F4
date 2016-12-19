@@ -42,12 +42,12 @@ endif
 
 # Board options
 ifeq ($(CHIP), __NUCLEO_F429ZI__)
-CHIP_NAME=nucleo-f429zi
+CHIP_NAME=nucleo_f429zi
 CHIP_SERIE=STM32F4xx
 CFLAGS += -DSTM32F429xx
 CFLAGS += -DHSE_VALUE=8000000
 # Output directories
-OUTPUT_BIN = ../../../variants/STM32F429ZI-Nucleo
+OUTPUT_BIN = ../../../variants/STM32F429ZI_Nucleo
 #Startup file
 CHIP_STARTUP_FILE=startup_stm32f429xx.s
 else

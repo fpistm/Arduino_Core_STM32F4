@@ -24,10 +24,10 @@ SUBMAKE_OPTIONS=--no-builtin-rules --no-builtin-variables --no-print-directory
 # Rules
 #-------------------------------------------------------------------------------
 
-all : NUCLEO-F429ZI
+all : NUCLEO_F429ZI
 
 .PHONY: all
-NUCLEO-F429ZI:
+NUCLEO_F429ZI:
 	@echo ------------------------------------------------------------------------
 	@echo --- Making $@
 	@echo ---

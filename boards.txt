@@ -3,33 +3,33 @@
 menu.upload_method=Upload method
 
 ################################################################################
-# NUCLEO-F429ZI board
+# NUCLEO_F429ZI board
 
-NUCLEO-F429ZI.name=NUCLEO-F429ZI
+NUCLEO_F429ZI.name=Nucleo F429ZI
 
-NUCLEO-F429ZI.vid.0=0x0483
-NUCLEO-F429ZI.pid.0=0x374b
-NUCLEO-F429ZI.node=NODE_F429ZI
+NUCLEO_F429ZI.vid.0=0x0483
+NUCLEO_F429ZI.pid.0=0x374b
+NUCLEO_F429ZI.node=NODE_F429ZI
 
-NUCLEO-F429ZI.upload.tool=nucleoFlasher
-NUCLEO-F429ZI.upload.protocol=nucleoFlasher
-NUCLEO-F429ZI.upload.maximum_size=2097151
-NUCLEO-F429ZI.upload.maximum_data_size=262144
+NUCLEO_F429ZI.upload.tool=nucleoFlasher
+NUCLEO_F429ZI.upload.protocol=nucleoFlasher
+NUCLEO_F429ZI.upload.maximum_size=2097151
+NUCLEO_F429ZI.upload.maximum_data_size=262144
 
-NUCLEO-F429ZI.build.mcu=cortex-m4
-NUCLEO-F429ZI.build.board=NUCLEO-F429ZI
-NUCLEO-F429ZI.build.core=arduino
-NUCLEO-F429ZI.build.ldscript=linker_scripts/gcc/STM32F429ZI_FLASH.ld
-NUCLEO-F429ZI.build.variant=STM32F429ZI-Nucleo
-NUCLEO-F429ZI.build.variant_system_lib=libstm32f4_nucleo-f429zi_gcc_rel.a
-NUCLEO-F429ZI.build.extra_flags=-mthumb -DSTM32F429xx -DUSBCON
+NUCLEO_F429ZI.build.mcu=cortex-m4
+NUCLEO_F429ZI.build.board=NUCLEO_F429ZI
+NUCLEO_F429ZI.build.core=arduino
+NUCLEO_F429ZI.build.ldscript=linker_scripts/gcc/STM32F429ZI_FLASH.ld
+NUCLEO_F429ZI.build.variant=STM32F429ZI_Nucleo
+NUCLEO_F429ZI.build.variant_system_lib=libstm32f4_nucleo_f429zi_gcc_rel.a
+NUCLEO_F429ZI.build.extra_flags=-mthumb -DSTM32F429xx -DUSBCON
 
-NUCLEO-F429ZI.menu.upload_method.MassStorageMethod=Mass Storage
-NUCLEO-F429ZI.menu.upload_method.MassStorageMethod.upload.protocol=
-NUCLEO-F429ZI.menu.upload_method.MassStorageMethod.upload.tool=nucleoFlasher
+NUCLEO_F429ZI.menu.upload_method.MassStorageMethod=Mass Storage
+NUCLEO_F429ZI.menu.upload_method.MassStorageMethod.upload.protocol=
+NUCLEO_F429ZI.menu.upload_method.MassStorageMethod.upload.tool=nucleoFlasher
 
-NUCLEO-F429ZI.menu.upload_method.STLinkMethod=STLink
-NUCLEO-F429ZI.menu.upload_method.STLinkMethod.upload.protocol=STLink
-NUCLEO-F429ZI.menu.upload_method.STLinkMethod.upload.tool=stlink_upload
+NUCLEO_F429ZI.menu.upload_method.STLinkMethod=STLink
+NUCLEO_F429ZI.menu.upload_method.STLinkMethod.upload.protocol=STLink
+NUCLEO_F429ZI.menu.upload_method.STLinkMethod.upload.tool=stlink_upload
 
 ################################################################################
