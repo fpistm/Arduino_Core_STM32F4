@@ -20,11 +20,10 @@
 .SUFFIXES: .o .a .c .s
 SUB_MAKEFILES= debug.mk gcc.mk release.mk stm32f4.mk
 
-LIBNAME=libstm32f4
 TOOLCHAIN=gcc
 
 ifeq ($(OS),Windows_NT)
-DEV_NUL=NUL
+DEV_NUL=null.txt
 else
 DEV_NUL=/dev/null
 endif
@@ -41,19 +40,9 @@ endif
 #-------------------------------------------------------------------------------
 
 # Board options
-ifeq ($(CHIP), __NUCLEO_F429ZI__)
-CHIP_NAME=nucleo_f429zi
 CHIP_SERIE=STM32F4xx
-CFLAGS += -DSTM32F429xx
-CFLAGS += -DHSE_VALUE=8000000
-VARIANTS_PATH = ../../../variants/STM32F429ZI_Nucleo
-# Output directories
 OUTPUT_BIN = $(VARIANTS_PATH)
-#Startup file
-CHIP_STARTUP_FILE=startup_stm32f429xx.s
-else
-$(error CHIP not recognized)
-endif
+CFLAGS += -D$(CHIP) -DHSE_VALUE=8000000
 
 # Libraries
 PROJECT_BASE_PATH = ..
@@ -90,7 +79,7 @@ VPATH+=$(MIDDLEWARES_USBD_HID_CORE_PATH)/Inc
 
 INCLUDES = -I$(PROJECT_BASE_PATH)
 INCLUDES += -I$(HAL_ROOT_PATH)/Inc
-INCLUDES += -I$(PROJECT_BASE_PATH)/include
+#INCLUDES += -I$(PROJECT_BASE_PATH)/include
 INCLUDES += -I$(CMSIS_ARM_PATH)
 INCLUDES += -I$(CMSIS_ST_PATH)
 INCLUDES += -I$(CMSIS_CHIP_PATH)/Include

@@ -31,12 +31,12 @@ NUCLEO_F429ZI:
 	@echo ------------------------------------------------------------------------
 	@echo --- Making $@
 	@echo ---
-	@$(MAKE) CHIP=__NUCLEO_F429ZI__ $(SUBMAKE_OPTIONS) -f stm32f4.mk
+	@$(MAKE) CHIP=STM32F429xx CHIP_STARTUP_FILE=startup_stm32f429xx.s LIBNAME=libstm32f4 CHIP_NAME=nucleo_f429zi VARIANTS_PATH=../../../variants/STM32F429ZI_Nucleo $(SUBMAKE_OPTIONS) -f stm32f4.mk
 	@echo ------------------------------------------------------------------------
 
 .PHONY: clean
 clean:
 	@echo ------------------------------------------------------------------------
 	@echo --- Cleaning lib release and debug
-	@$(MAKE) CHIP=__NUCLEO_F429ZI__ $(SUBMAKE_OPTIONS) -f stm32f4.mk $@
+	@$(MAKE) CHIP=STM32F429xx CHIP_STARTUP_FILE=startup_stm32f429xx.s LIBNAME=libstm32f4 CHIP_NAME=nucleo_f429zi VARIANTS_PATH=../../../variants/STM32F429ZI_Nucleo $(SUBMAKE_OPTIONS) -f stm32f4.mk $@
 	@echo ------------------------------------------------------------------------
