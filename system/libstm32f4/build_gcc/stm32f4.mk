@@ -46,8 +46,9 @@ CHIP_NAME=nucleo_f429zi
 CHIP_SERIE=STM32F4xx
 CFLAGS += -DSTM32F429xx
 CFLAGS += -DHSE_VALUE=8000000
+VARIANTS_PATH = ../../../variants/STM32F429ZI_Nucleo
 # Output directories
-OUTPUT_BIN = ../../../variants/STM32F429ZI_Nucleo
+OUTPUT_BIN = $(VARIANTS_PATH)
 #Startup file
 CHIP_STARTUP_FILE=startup_stm32f429xx.s
 else
@@ -96,6 +97,7 @@ INCLUDES += -I$(CMSIS_CHIP_PATH)/Include
 INCLUDES += -I$(STARTUP_FILE_PATH)
 #INCLUDES += -I$(MIDDLEWARES_USBD_HID_CLASS_PATH)/Inc
 INCLUDES += -I$(MIDDLEWARES_USBD_HID_CORE_PATH)/Inc
+INCLUDES += -I$(VARIANTS_PATH)
 
 #-------------------------------------------------------------------------------
 ifdef DEBUG
