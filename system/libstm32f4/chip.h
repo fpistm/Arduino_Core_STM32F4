@@ -22,20 +22,20 @@
 /*
  * Core and peripherals registers definitions
  */
-#include "include/hw_config.h"
-#include "include/digital_io.h"
-#include "include/clock.h"
-#include "include/uart_emul.h"
-#include "include/uart.h"
-#include "include/analog.h"
-#include "include/interrupt.h"
-#include "include/spi_com.h"
-#include "include/timer.h"
-#include "include/twi.h"
-#include "include/stm32_eeprom.h"
-#include "include/usbd_desc.h"
-#include "include/usbd_hid_composite.h"
-#include "include/usb_interface.h"
+#include "libstm32f4/hw_config.h"
+#include "libstm32f4/digital_io.h"
+#include "libstm32f4/clock.h"
+#include "libstm32f4/uart_emul.h"
+#include "libstm32f4/uart.h"
+#include "libstm32f4/analog.h"
+#include "libstm32f4/interrupt.h"
+#include "libstm32f4/spi_com.h"
+#include "libstm32f4/timer.h"
+#include "libstm32f4/twi.h"
+#include "libstm32f4/stm32_eeprom.h"
+#include "libstm32f4/usbd_desc.h"
+#include "libstm32f4/usbd_hid_composite.h"
+#include "libstm32f4/usb_interface.h"
 
 /* Define attribute */
 #if defined (  __GNUC__  ) /* GCC CS3 */
