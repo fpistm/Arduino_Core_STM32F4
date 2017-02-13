@@ -251,7 +251,7 @@ stm32f4xx_hal_dma.o:
 00000000 T HAL_DMA_UnRegisterCallback
          U HAL_GetTick
          U SystemCoreClock
-00000000 r flagBitshiftOffset.8578
+00000000 r flagBitshiftOffset.8598
 
 stm32f4xx_hal_hash_ex.o:
 
@@ -410,7 +410,7 @@ stm32f4xx_ll_usb.o:
 00000000 T USB_StopDevice
 00000000 T USB_StopHost
 00000000 T USB_WritePacket
-00000000 b debug.8514
+00000000 b debug.8534
 
 stm32f4xx_hal_cortex.o:
 00000000 T HAL_MPU_ConfigRegion
@@ -509,6 +509,7 @@ stm32f4xx_hal_dsi.o:
 
 stm32f4xx_hal_i2c.o:
          U HAL_DMA_Abort_IT
+         U HAL_DMA_GetError
          U HAL_DMA_Start_IT
          U HAL_GetTick
 00000000 W HAL_I2C_AbortCpltCallback
@@ -560,9 +561,8 @@ stm32f4xx_hal_i2c.o:
 00000000 t I2C_DMAAbort
 00000000 t I2C_DMAError
 00000000 t I2C_DMAXferCplt
+00000000 t I2C_ITError
 00000000 t I2C_IsAcknowledgeFailed
-00000000 t I2C_MasterRequestRead
-00000000 t I2C_MasterRequestWrite
 00000000 t I2C_RequestMemoryRead
 00000000 t I2C_RequestMemoryWrite
 00000000 t I2C_WaitOnBTFFlagUntilTimeout
@@ -686,7 +686,6 @@ stm32f4xx_hal_pcd.o:
 00000000 T HAL_PCD_Start
 00000000 T HAL_PCD_Stop
 00000000 W HAL_PCD_SuspendCallback
-         U HAL_RCC_GetHCLKFreq
          U USB_ActivateEndpoint
          U USB_ActivateSetup
          U USB_CoreInit
@@ -833,6 +832,15 @@ stm32f4xx_hal_uart.o:
 00000000 T HAL_MultiProcessor_Init
          U HAL_RCC_GetPCLK1Freq
          U HAL_RCC_GetPCLK2Freq
+00000000 T HAL_UART_Abort
+00000000 W HAL_UART_AbortCpltCallback
+00000000 T HAL_UART_AbortReceive
+00000000 W HAL_UART_AbortReceiveCpltCallback
+00000000 T HAL_UART_AbortReceive_IT
+00000000 T HAL_UART_AbortTransmit
+00000000 W HAL_UART_AbortTransmitCpltCallback
+00000000 T HAL_UART_AbortTransmit_IT
+00000000 T HAL_UART_Abort_IT
 00000000 T HAL_UART_DMAPause
 00000000 T HAL_UART_DMAResume
 00000000 T HAL_UART_DMAStop
@@ -857,9 +865,13 @@ stm32f4xx_hal_uart.o:
 00000000 t UART_DMAAbortOnError
 00000000 t UART_DMAError
 00000000 t UART_DMAReceiveCplt
+00000000 t UART_DMARxAbortCallback
 00000000 t UART_DMARxHalfCplt
+00000000 t UART_DMARxOnlyAbortCallback
 00000000 t UART_DMATransmitCplt
+00000000 t UART_DMATxAbortCallback
 00000000 t UART_DMATxHalfCplt
+00000000 t UART_DMATxOnlyAbortCallback
 00000000 t UART_EndRxTransfer
 00000000 t UART_Receive_IT
 00000000 t UART_SetConfig
@@ -958,7 +970,7 @@ usbd_ctlreq.o:
 00000000 T USBD_StdDevReq
 00000000 T USBD_StdEPReq
 00000000 T USBD_StdItfReq
-00000000 b cfgidx.9080
+00000000 b cfgidx.9100
 
 usbd_ioreq.o:
 00000000 T USBD_CtlContinueRx
