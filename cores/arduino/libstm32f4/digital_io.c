@@ -46,6 +46,7 @@
 /** @addtogroup STM32F4xx_System_Private_Includes
   * @{
   */
+#include "digital_io.h"
 #include "stm32f4xx.h"
 #include "hw_config.h"
 
@@ -104,26 +105,11 @@
   * @param  pull : one of the pullup/down mode (cf hal_gpio.h)
   * @retval None
   */
-void digital_io_init(GPIO_TypeDef  *port, uint32_t pin, uint32_t mode, uint32_t pull)
+void digital_io_init(PinName pin, uint32_t mode, uint32_t pull)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
-
-  if(port == GPIOA) {
-    __GPIOA_CLK_ENABLE();
-  } else if(port == GPIOB){
-    __GPIOB_CLK_ENABLE();
-  } else if(port == GPIOC){
-    __GPIOC_CLK_ENABLE();
-  } else if(port == GPIOD){
-    __GPIOD_CLK_ENABLE();
-  } else if(port == GPIOE){
-    __GPIOE_CLK_ENABLE();
-  } else if(port == GPIOF){
-    __GPIOF_CLK_ENABLE();
-  } else if(port == GPIOG){
-    __GPIOG_CLK_ENABLE();
-  }
-  GPIO_InitStructure.Pin = pin;
+  GPIO_TypeDef *port = set_GPIO_Port_Clock(STM_PORT(pin));;
+  GPIO_InitStructure.Pin = STM_GPIO_PIN(pin);
   GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStructure.Mode = mode;
   GPIO_InitStructure.Pull = pull;

@@ -21,22 +21,17 @@
 
 #include "Arduino.h"
 
-uint8_t g_lastPin = 0xff;
-
+PinName g_lastPin = NC;
 
 // frequency (in hertz) and duration (in milliseconds).
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 {
-  uint32_t i = 0;
-
-  if((g_lastPin == 0xff) || (g_lastPin == _pin)) {
-    for(i = 0; i < NB_PIN_DESCRIPTIONS; i++) {
-      if(g_APinDescription[i].arduino_id == _pin) {
-        TimerPinInit(g_APinDescription[i].ulPort, g_APinDescription[i].ulPin, frequency, duration);
-        g_lastPin = _pin;
-        break;
-      }
+  PinName p = digitalToPin((PinName)_pin);
+  if(p != NC) {
+    if((g_lastPin == NC) || (g_lastPin == p)) {
+      TimerPinInit(p, frequency, duration);
+      g_lastPin = p;
     }
   }
 }
@@ -44,12 +39,10 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 
 void noTone(uint8_t _pin)
 {
-  uint32_t i = 0;
-
-  for(i = 0; i < NB_PIN_DESCRIPTIONS; i++) {
-    if(g_APinDescription[i].arduino_id == _pin)
-      TimerPinDeinit(g_APinDescription[i].ulPort, g_APinDescription[i].ulPin);
+  PinName p = digitalToPin((PinName)_pin);
+  if(p != NC) {
+    TimerPinDeinit(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p));
+    digitalWrite(p, 0);
+    g_lastPin = NC;
   }
-  digitalWrite(_pin, 0);
-  g_lastPin = 0xff;
 }

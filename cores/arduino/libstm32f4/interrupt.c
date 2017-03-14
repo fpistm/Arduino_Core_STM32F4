@@ -149,14 +149,11 @@ uint8_t get_pin_id(uint16_t pin)
   * @param  mode : one of the supported interrupt mode defined in stm32_hal_gpio
   * @retval None
   */
-void stm32_interrupt_enable(GPIO_TypeDef *port, uint16_t pin,
-                                  void (*callback)(void), uint32_t mode)
+void stm32_interrupt_enable(GPIO_TypeDef *port, uint16_t pin, void (*callback)(void), uint32_t mode)
 {
-
   GPIO_InitTypeDef GPIO_InitStruct;
   uint32_t pull;
   uint8_t id = get_pin_id(pin);
-
   // GPIO pin configuration
   GPIO_InitStruct.Pin       = pin;
   GPIO_InitStruct.Mode      = mode;
@@ -188,6 +185,14 @@ void stm32_interrupt_enable(GPIO_TypeDef *port, uint16_t pin,
 void stm32_interrupt_disable(GPIO_TypeDef *port, uint16_t pin)
 {
   uint8_t id = get_pin_id(pin);
+  gpio_irq_conf[id].callback = NULL;
+
+  for(int i = 0; i < NB_EXTI; i++) {
+    if (gpio_irq_conf[id].irqnb == gpio_irq_conf[i].irqnb
+        && gpio_irq_conf[i].callback != NULL) {
+      return;
+    }
+  }
   HAL_NVIC_DisableIRQ(gpio_irq_conf[id].irqnb);
 }
 

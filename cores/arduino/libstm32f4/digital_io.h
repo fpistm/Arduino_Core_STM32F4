@@ -41,6 +41,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "PeripheralPins.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -50,7 +51,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void digital_io_init(GPIO_TypeDef  *port, uint32_t pin, uint32_t mode, uint32_t pull);
+void digital_io_init(PinName pin, uint32_t mode, uint32_t pull);
 void digital_io_write(GPIO_TypeDef  *port, uint32_t pin, uint32_t val);
 uint32_t digital_io_read(GPIO_TypeDef  *port, uint32_t pin);
 

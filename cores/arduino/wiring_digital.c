@@ -23,99 +23,66 @@
 #endif
 
 
-//This is the list of the digital IOs configured
-PinDescription g_digPinConfigured[MAX_DIGITAL_IOS];
-extern PinDescription g_anOutputPinConfigured[MAX_DIGITAL_IOS];
+//This is the list of the IOs configured
+uint32_t g_digPinConfigured[MAX_NB_PORT] = {0};
+extern uint32_t g_anOutputPinConfigured[MAX_NB_PORT];
 
 
 extern void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
-  int i;
+  PinName p = digitalToPin(ulPin);
 
-  //not a valid pin
-  if(ulPin>MAX_DIGITAL_IOS) {
-    return ;
-  }
+  if(p != NC) {
+    // If the pin that support PWM or DAC output, we need to turn it off
+    if(is_pin_configured(p, g_anOutputPinConfigured)) {
+      if(pin_in_pinmap(p, PinMap_DAC)) {
+        dac_stop(p);
+      } else if(pin_in_pinmap(p, PinMap_PWM)) {
+        pwm_stop(p);
+      }
+      reset_pin_configured(p, g_anOutputPinConfigured);
+    }
 
-  //find the pin.
-  for(i = 0; i < NB_PIN_DESCRIPTIONS; i++) {
-    if(g_APinDescription[i].arduino_id == ulPin) {
-      g_digPinConfigured[ulPin] = g_APinDescription[i];
-      g_digPinConfigured[ulPin].configured = true;
+    switch ( ulMode )
+    {
+      case INPUT:
+        digital_io_init(p, GPIO_MODE_INPUT, GPIO_NOPULL);
+      break;
+      case INPUT_PULLUP:
+        digital_io_init(p, GPIO_MODE_INPUT, GPIO_PULLUP);
+      break;
+      case INPUT_PULLDOWN:
+        digital_io_init(p, GPIO_MODE_INPUT, GPIO_PULLDOWN);
+      break;
+      case OUTPUT:
+        digital_io_init(p, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+      break;
+      default:
       break;
     }
-  }
-  
-  // If the pin that support PWM or DAC output, we need to turn it off
-  if(g_anOutputPinConfigured[ulPin].configured == true) {
-    if((g_anOutputPinConfigured[ulPin].mode & GPIO_PIN_PWM) == GPIO_PIN_PWM) {
-      pwm_stop(g_anOutputPinConfigured[ulPin].ulPort, g_anOutputPinConfigured[ulPin].ulPin);
-    } else if((g_anOutputPinConfigured[ulPin].mode & GPIO_PIN_DAC) == GPIO_PIN_DAC) {
-      dac_stop(g_anOutputPinConfigured[ulPin].ulPort, g_anOutputPinConfigured[ulPin].ulPin);
-    }
-    
-    g_anOutputPinConfigured[ulPin].configured = false;
-  }
-  
-  switch ( ulMode )
-  {
-    case INPUT:
-      digital_io_init(g_digPinConfigured[ulPin].ulPort,
-                    g_digPinConfigured[ulPin].ulPin,
-                    GPIO_MODE_INPUT, GPIO_NOPULL);
-    break;
-    case INPUT_PULLUP:
-      digital_io_init(g_digPinConfigured[ulPin].ulPort,
-                    g_digPinConfigured[ulPin].ulPin,
-                    GPIO_MODE_INPUT, GPIO_PULLUP);
-    break;
-    case INPUT_PULLDOWN:
-      digital_io_init(g_digPinConfigured[ulPin].ulPort,
-                    g_digPinConfigured[ulPin].ulPin,
-                    GPIO_MODE_INPUT, GPIO_PULLDOWN);
-    break;
-    case OUTPUT:
-      digital_io_init(g_digPinConfigured[ulPin].ulPort,
-                    g_digPinConfigured[ulPin].ulPin,
-                    GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
-    break;
-    default:
-    break;
+    set_pin_configured(p, g_digPinConfigured);
   }
 }
 
 extern void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
-  //not a valid pin
-  if(ulPin>MAX_DIGITAL_IOS) {
-    return ;
-  }
-
-  if(g_digPinConfigured[ulPin].configured == true) {
-    digital_io_write(g_digPinConfigured[ulPin].ulPort,
-                  g_digPinConfigured[ulPin].ulPin,
-                  ulVal);
+  PinName p = digitalToPin(ulPin);
+  if(p != NC) {
+    if(is_pin_configured(p, g_digPinConfigured)) {
+      digital_io_write(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p), ulVal);
+    }
   }
 }
 
 extern int digitalRead( uint32_t ulPin )
 {
-
   uint8_t level = 0;
-  //not a valid pin
-  if(ulPin>MAX_DIGITAL_IOS) {
-    return LOW;
-  }
-
-  if(g_digPinConfigured[ulPin].configured == true) {
-    level = digital_io_read(g_digPinConfigured[ulPin].ulPort,
-                        g_digPinConfigured[ulPin].ulPin);
-  }
-
-  if(level) {
-    return HIGH;
-  } else {
-    return LOW;
+  PinName p = digitalToPin(ulPin);
+  if(p != NC) {
+    if(is_pin_configured(p, g_digPinConfigured)) {
+      level = digital_io_read(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p));
+    }
+  return (level)? HIGH : LOW;
   }
 }
 

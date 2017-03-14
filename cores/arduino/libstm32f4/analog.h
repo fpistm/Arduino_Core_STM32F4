@@ -41,40 +41,21 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "PeripheralPins.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Exported types ------------------------------------------------------------*/
-typedef struct {
-  GPIO_TypeDef  *port;
-  uint32_t pin;
-  uint8_t alFunction;
-  ADC_TypeDef *adcInstance;
-  ADC_ChannelConfTypeDef adcChannelConf;
-  DAC_TypeDef *dacInstance;
-  uint32_t dacChannel;
-  DAC_ChannelConfTypeDef dacChannelConf;
-  TIM_TypeDef *timInstance;
-  uint32_t timChannel;
-  uint32_t useNchannel;
-  TIM_OC_InitTypeDef timConfig;
-  TIM_HandleTypeDef timHandle;
-}analog_config_str;
-
 /* Exported constants --------------------------------------------------------*/
-#define NB_ANALOG_CHANNELS       15
-
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void dac_write_value(GPIO_TypeDef  *port, uint32_t pin, uint32_t value, uint8_t do_init);
-void dac_stop(GPIO_TypeDef  *port, uint32_t pin);
-uint16_t adc_read_value(GPIO_TypeDef  *port, uint32_t pin, uint8_t do_init);
-void pwm_start(GPIO_TypeDef  *port, uint32_t pin, uint32_t clock_freq, uint32_t period, uint32_t value, uint8_t do_init);
-void pwm_stop(GPIO_TypeDef  *port, uint32_t pin);
-
-int8_t get_analog_instance(GPIO_TypeDef  *port, uint32_t pin);
+void dac_write_value(PinName pin, uint32_t value, uint8_t do_init);
+void dac_stop(PinName pin);
+uint16_t adc_read_value(PinName pin, uint8_t do_init);
+void pwm_start(PinName pin, uint32_t clock_freq, uint32_t period, uint32_t value, uint8_t do_init);
+void pwm_stop(PinName pin);
 
 #ifdef __cplusplus
 }

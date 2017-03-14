@@ -137,7 +137,6 @@ static void tim6_irqHandle(timer_id_e timer_id)   { HAL_TIM6_PeriodElapsedCallba
   */
 
 /// @brief timer caracteristics
-extern analog_config_str g_analog_config[NB_ANALOG_CHANNELS];
 
 static TIM_HandleTypeDef g_TimerHandle[NB_TIMER_MANAGED];
 
@@ -708,14 +707,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   * @param  duration : toggle time
   * @retval None
   */
-void TimerPinInit(GPIO_TypeDef *port, uint32_t pin, uint32_t frequency, uint32_t duration)
+void TimerPinInit(PinName pin, uint32_t frequency, uint32_t duration)
 {
   uint8_t end = 0;
   uint32_t prescaler = 1;
   uint32_t period = 0;
   timer_id_e timer_id;
+  GPIO_TypeDef *port = get_GPIO_Port(STM_PORT(pin));
+  uint32_t p = STM_GPIO_PIN(p);
 
-  timer_id = isPinAssociateToTimer(port,pin);
+  timer_id = isPinAssociateToTimer(port,p);
 
   if(timer_id == NB_TIMER_MANAGED) {
     timer_id = getInactiveTimer();
@@ -727,7 +728,7 @@ void TimerPinInit(GPIO_TypeDef *port, uint32_t pin, uint32_t frequency, uint32_t
     return;
 
   g_timer_config[timer_id].toggle_pin.port = port;
-  g_timer_config[timer_id].toggle_pin.pin = pin;
+  g_timer_config[timer_id].toggle_pin.pin = p;
   g_timer_config[timer_id].toggle_pin.state = 0;
 
   //Calculate the toggle count
@@ -738,7 +739,7 @@ void TimerPinInit(GPIO_TypeDef *port, uint32_t pin, uint32_t frequency, uint32_t
     g_timer_config[timer_id].toggle_pin.count = -1;
   }
 
-  digital_io_init(port, pin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+  digital_io_init(pin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
 
   while(end == 0) {
     period = ((uint32_t)(g_timer_config[timer_id].timer_clock_source() / frequency / prescaler)) - 1;

@@ -41,6 +41,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "PeripheralPins.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -108,7 +109,7 @@ void timer_disable_clock(TIM_HandleTypeDef *htim);
 void TimerHandleInit(timer_id_e timer_id, uint16_t period, uint16_t prescaler);
 void TimerHandleDeinit(timer_id_e timer_id);
 
-void TimerPinInit(GPIO_TypeDef *port, uint32_t pin, uint32_t frequency, uint32_t duration);
+void TimerPinInit(PinName pin, uint32_t frequency, uint32_t duration);
 void TimerPinDeinit(GPIO_TypeDef *port, uint32_t pin);
 
 void TimerPulseInit(timer_id_e timer_id, uint16_t period, uint16_t pulseWidth, void (*irqHandle)(timer_id_e, uint32_t));

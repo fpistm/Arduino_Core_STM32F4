@@ -22,35 +22,18 @@
  extern "C" {
 #endif
 
-//This is the list of the digital IOs configured
-PinDescription g_intPinConfigured[MAX_DIGITAL_IOS];
-
-
 void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode)
 {
-  int i;
   uint32_t it_mode;
-
-  //not a valid pin
-  if(pin>MAX_DIGITAL_IOS) {
-    return ;
-  }
-
-  //find the pin.
-  for(i = 0; i < NB_PIN_DESCRIPTIONS; i++) {
-    if(g_APinDescription[i].arduino_id == pin) {
-      g_intPinConfigured[pin] = g_APinDescription[i];
-      g_intPinConfigured[pin].configured = true;
-      break;
-    }
-  }
+  PinName p = digitalToPin(pin);
+  GPIO_TypeDef* port = set_GPIO_Port_Clock(STM_PORT(p));
+  if (port == NC)
+	  return;
 
   switch(mode) {
-
     case CHANGE :
       it_mode = GPIO_MODE_IT_RISING_FALLING;
     break;
-
     case FALLING :
     case LOW :
       it_mode = GPIO_MODE_IT_FALLING;
@@ -63,30 +46,14 @@ void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode)
       it_mode = GPIO_MODE_IT_RISING;
     break;
   }
-
-  stm32_interrupt_enable(g_intPinConfigured[pin].ulPort,
-                          g_intPinConfigured[pin].ulPin, callback, it_mode);
-
+  stm32_interrupt_enable(port, STM_GPIO_PIN(p), callback, it_mode);
 }
 
 void detachInterrupt(uint32_t pin)
 {
-  int i;
-
-  //not a valid pin
-  if(pin>MAX_DIGITAL_IOS) {
-    return ;
-  }
-
-  //find the pin.
-  for(i = 0; i < NB_PIN_DESCRIPTIONS; i++) {
-    if(g_APinDescription[i].arduino_id == pin) {
-      g_intPinConfigured[pin] = g_APinDescription[i];
-      g_intPinConfigured[pin].configured = true;
-      break;
-    }
-  }
-
-  stm32_interrupt_disable(g_intPinConfigured[pin].ulPort,
-                          g_intPinConfigured[pin].ulPin);
+  PinName p = digitalToPin(pin);
+  GPIO_TypeDef* port = get_GPIO_Port(STM_PORT(p));
+  if (port == NC)
+	  return;
+  stm32_interrupt_disable(port, STM_GPIO_PIN(p));
 }

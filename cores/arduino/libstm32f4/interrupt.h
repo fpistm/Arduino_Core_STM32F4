@@ -41,6 +41,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -50,9 +51,8 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void stm32_interrupt_enable(GPIO_TypeDef  *port, uint16_t pin,
-                                  void (*callback)(void), uint32_t mode);
-void stm32_interrupt_disable(GPIO_TypeDef  *port, uint16_t pin);
+void stm32_interrupt_enable(GPIO_TypeDef *port, uint16_t pin, void (*callback)(void), uint32_t mode);
+void stm32_interrupt_disable(GPIO_TypeDef *port, uint16_t pin);
 #ifdef __cplusplus
 }
 #endif

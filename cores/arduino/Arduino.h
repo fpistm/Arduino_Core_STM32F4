@@ -25,12 +25,6 @@
 #include <string.h>
 #include <math.h>
 
-// some libraries and sketches depend on this
-// AVR stuff, assuming Arduino.h or WProgram.h
-// automatically includes it...
-//#include <avr/pgmspace.h>
-//#include <avr/interrupt.h>
-
 #include "binary.h"
 #include "itoa.h"
 
@@ -55,21 +49,6 @@ void yield(void);
 extern void setup( void ) ;
 extern void loop( void ) ;
 
-/* Types used for the tables below */
-typedef struct _PinDescription
-{
-  uint32_t arduino_id;
-  uint32_t ulPin ;
-  GPIO_TypeDef  * ulPort;
-  uint32_t mode;
-  bool configured;
-} PinDescription ;
-
-#define NB_PIN_DESCRIPTIONS (16*3)
-
-/* Pins table to be instanciated into variant.cpp */
-extern const PinDescription g_APinDescription[] ;
-
 /* Define attribute */
 #if defined   ( __CC_ARM   ) /* Keil uVision 4 */
     #define WEAK (__attribute__ ((weak)))
@@ -78,6 +57,7 @@ extern const PinDescription g_APinDescription[] ;
 #elif defined (  __GNUC__  ) /* GCC CS */
     #define WEAK __attribute__ ((weak))
 #endif
+
 #ifdef __cplusplus
 } // extern "C"
 
