@@ -24,7 +24,6 @@ extern "C" {
 
 
 //This is the list of the IOs configured
-uint32_t g_anInputPinConfigured[MAX_NB_PORT] = {0};
 uint32_t g_anOutputPinConfigured[MAX_NB_PORT] = {0};
 
 static int _readResolution = 10;
@@ -53,14 +52,9 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 uint32_t analogRead(uint32_t ulPin)
 {
   uint32_t value = 0;
-  uint8_t do_init = 0;
   PinName p = analogToPin(ulPin);
   if(p != NC) {
-    if(is_pin_configured(p, g_anInputPinConfigured) == false) {
-      do_init = 1;
-      set_pin_configured(p, g_anInputPinConfigured);
-    }
-    value = adc_read_value(p, do_init);
+    value = adc_read_value(p);
     value = mapResolution(value, ADC_RESOLUTION, _readResolution);
   }
   return value;

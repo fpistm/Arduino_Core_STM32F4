@@ -385,12 +385,10 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
 
 /**
   * @brief  This function will set the ADC to the required value
-  * @param  port : the gpio port to use
-  * @param  pin : the gpio pin to use
-  * @param  do_init : if set to 1 the initialization of the adc is done
+  * @param  pin : the pin to use
   * @retval the value of the adc
   */
-uint16_t adc_read_value(PinName pin, uint8_t do_init)
+uint16_t adc_read_value(PinName pin)
 {
   ADC_HandleTypeDef AdcHandle;
   ADC_ChannelConfTypeDef  AdcChannelConf;
@@ -400,27 +398,24 @@ uint16_t adc_read_value(PinName pin, uint8_t do_init)
 
   if (AdcHandle.Instance == NC) return 0;
 
-  if(do_init == 1) {
-    if(HAL_ADC_DeInit(&AdcHandle) != HAL_OK) {
-      return 0;
-    }
+  AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;          /* Asynchronous clock mode, input ADC clock divided */
+  AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;            /* 12-bit resolution for converted data */
+  AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;           /* Right-alignment for converted data */
+  AdcHandle.Init.ScanConvMode          = DISABLE;                       /* Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1) */
+  AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;           /* EOC flag picked-up to indicate conversion end */
+  AdcHandle.Init.ContinuousConvMode    = DISABLE;                       /* Continuous mode disabled to have only 1 conversion at each conversion trig */
+  AdcHandle.Init.NbrOfConversion       = 1;                             /* Specifies the number of ranks that will be converted within the regular group sequencer. */
+  AdcHandle.Init.DiscontinuousConvMode = DISABLE;                       /* Parameter discarded because sequencer is disabled */
+  AdcHandle.Init.NbrOfDiscConversion   = 0;                             /* Parameter discarded because sequencer is disabled */
+  AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;            /* Software start to trig the 1st conversion manually, without external event */
+  AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE; /* Parameter discarded because software trigger chosen */
+  AdcHandle.Init.DMAContinuousRequests = DISABLE;                       /* DMA one-shot mode selected (not applied to this example) */
+  AdcHandle.State = HAL_ADC_STATE_RESET;
 
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;          /* Asynchronous clock mode, input ADC clock divided */
-    AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;            /* 12-bit resolution for converted data */
-    AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;           /* Right-alignment for converted data */
-    AdcHandle.Init.ScanConvMode          = DISABLE;                       /* Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1) */
-    AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;           /* EOC flag picked-up to indicate conversion end */
-    AdcHandle.Init.ContinuousConvMode    = DISABLE;                       /* Continuous mode disabled to have only 1 conversion at each conversion trig */
-    AdcHandle.Init.NbrOfConversion       = 1;                             /* Specifies the number of ranks that will be converted within the regular group sequencer. */
-    AdcHandle.Init.DiscontinuousConvMode = DISABLE;                       /* Parameter discarded because sequencer is disabled */
-    AdcHandle.Init.NbrOfDiscConversion   = 0;                             /* Parameter discarded because sequencer is disabled */
-    AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;            /* Software start to trig the 1st conversion manually, without external event */
-    AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE; /* Parameter discarded because software trigger chosen */
-    AdcHandle.Init.DMAContinuousRequests = DISABLE;                       /* DMA one-shot mode selected (not applied to this example) */
-    g_current_pin = pin;
-    if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
-      return 0;
-    }
+  g_current_pin = pin; /* Needed for HAL_ADC_MspInit*/
+
+  if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+    return 0;
   }
 
   AdcChannelConf.Channel      = get_adc_channel(pin);             /* Specifies the channel to configure into ADC */
@@ -460,7 +455,11 @@ uint16_t adc_read_value(PinName pin, uint8_t do_init)
 
   if (HAL_ADC_Stop(&AdcHandle) != HAL_OK)
   {
-    /* Start Conversation Error */
+    /* Stop Conversation Error */
+    return 0;
+  }
+
+  if(HAL_ADC_DeInit(&AdcHandle) != HAL_OK) {
     return 0;
   }
 
