@@ -32,7 +32,6 @@
 #define _PERIPHERALPINS_H
 
 #include "pinmap.h"
-#include "PeripheralNames.h"
 
 extern const PinName digital_arduino[];
 extern const PinName analog_arduino[];
