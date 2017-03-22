@@ -22,6 +22,93 @@
 extern "C" {
 #endif
 
+// Pin number
+// Match Table 17. NUCLEO-F429ZI pin assignments
+// from UM1974 STM32 Nucleo-144 board
+const PinName digital_arduino[] = {
+  PG9,  //D0
+  PG14, //D1
+  PF15, //D2
+  PE13, //D3
+  PF14, //D4
+  PE11, //D5
+  PE9,  //D6
+  PF13, //D7
+  PF12, //D8
+  PD15, //D9
+  PD14, //D10
+  PA7,  //D11
+  PA6,  //D12
+  PA5,  //D13
+  PB9,  //D14
+  PB8,  //D15
+  PC6,  //D16
+  PB15, //D17
+  PB13, //D18
+  PB12, //D19
+  PA15, //D20
+  PC7,  //D21
+  PB5,  //D22
+  PB3,  //D23
+  PA4,  //D24
+  PB4,  //D25
+  PB6,  //D26
+  PB2,  //D27
+  PD13, //D28
+  PD12, //D29
+  PD11, //D30
+  PE2,  //D31
+  PA0,  //D32
+  PB0,  //D33
+  PE0,  //D34
+  PB11, //D35
+  PB10, //D36
+  PE15, //D37
+  PE14, //D38
+  PE12, //D39
+  PE10, //D40
+  PE7,  //D41
+  PE8,  //D42
+  PC8,  //D43
+  PC9,  //D44
+  PC10, //D45
+  PC11, //D46
+  PC12, //D47
+  PD2,  //D48
+  PG2,  //D49
+  PG3,  //D50
+  PD7,  //D51
+  PD6,  //D52
+  PD5,  //D53
+  PD4,  //D54
+  PD3,  //D55
+  PE2,  //D56
+  PE4,  //D57
+  PE5,  //D58
+  PE6,  //D59
+  PE3,  //D60
+  PF8,  //D61
+  PF7,  //D62
+  PF9,  //D63
+  PG1,  //D64
+  PG0,  //D65
+  PD1,  //D66
+  PD0,  //D67
+  PF0,  //D68
+  PF1,  //D69
+  PF2,  //D70
+  PA7,  //D71
+  NC,   //D72
+  PA3,  //D73/A0
+  PC0,  //D74/A1
+  PC3,  //D75/A2
+  PF3,  //D76/A3
+  PF5,  //D77/A4
+  PF10, //D78/A5
+  PB7,  //D79
+  PB14, //D80
+  PC13  //D81
+};
 
 #ifdef __cplusplus
 }
@@ -51,6 +138,15 @@ extern "C" {
 
 void __libc_init_array(void);
 
+uint32_t pinNametoPinNumber(PinName p)
+{
+  uint32_t i = 0;
+  for(i = 0; i < NUM_DIGITAL_PINS; i++) {
+	  if (digital_arduino[i] == p)
+		  break;
+  }
+  return i;
+}
 
 void init( void )
 {

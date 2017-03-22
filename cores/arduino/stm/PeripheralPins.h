@@ -33,9 +33,6 @@
 
 #include "pinmap.h"
 
-extern const PinName digital_arduino[];
-extern const PinName analog_arduino[];
-
 //*** ADC ***
 extern const PinMap PinMap_ADC[];
 

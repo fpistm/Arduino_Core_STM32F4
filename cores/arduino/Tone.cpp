@@ -27,7 +27,7 @@ PinName g_lastPin = NC;
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 {
-  PinName p = digitalToPin((PinName)_pin);
+  PinName p = digitalToPinName(_pin);
   if(p != NC) {
     if((g_lastPin == NC) || (g_lastPin == p)) {
       TimerPinInit(p, frequency, duration);
@@ -39,10 +39,10 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 
 void noTone(uint8_t _pin)
 {
-  PinName p = digitalToPin((PinName)_pin);
+  PinName p = digitalToPinName(_pin);
   if(p != NC) {
     TimerPinDeinit(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p));
-    digitalWrite(p, 0);
+    digitalWrite(_pin, 0);
     g_lastPin = NC;
   }
 }

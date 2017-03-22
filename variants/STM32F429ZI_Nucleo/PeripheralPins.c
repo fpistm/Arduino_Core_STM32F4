@@ -35,13 +35,6 @@
 //       If you change them, you will have to know what you do
 // =====
 
-//digital arduino pins
-const PinName digital_arduino[] = {
-  D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14, D15
-};
-const PinName analog_arduino[] = {
-  A0, A1, A2, A3, A4, A5
-};
 //*** ADC ***
 
 const PinMap PinMap_ADC[] = {

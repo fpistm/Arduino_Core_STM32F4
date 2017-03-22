@@ -30,7 +30,7 @@ extern uint32_t g_anOutputPinConfigured[MAX_NB_PORT];
 
 extern void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
-  PinName p = digitalToPin(ulPin);
+  PinName p = digitalToPinName(ulPin);
 
   if(p != NC) {
     // If the pin that support PWM or DAC output, we need to turn it off
@@ -66,7 +66,7 @@ extern void pinMode( uint32_t ulPin, uint32_t ulMode )
 
 extern void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
-  PinName p = digitalToPin(ulPin);
+  PinName p = digitalToPinName(ulPin);
   if(p != NC) {
     if(is_pin_configured(p, g_digPinConfigured)) {
       digital_io_write(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p), ulVal);
@@ -77,7 +77,7 @@ extern void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 extern int digitalRead( uint32_t ulPin )
 {
   uint8_t level = 0;
-  PinName p = digitalToPin(ulPin);
+  PinName p = digitalToPinName(ulPin);
   if(p != NC) {
     if(is_pin_configured(p, g_digPinConfigured)) {
       level = digital_io_read(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p));

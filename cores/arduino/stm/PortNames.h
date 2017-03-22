@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 typedef enum {
-	FirstPort = 0x02,
+	FirstPort = 0x00,
     PortA = FirstPort,
     PortB,
 #if defined GPIOC_BASE

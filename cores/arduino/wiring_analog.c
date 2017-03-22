@@ -52,7 +52,7 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 uint32_t analogRead(uint32_t ulPin)
 {
   uint32_t value = 0;
-  PinName p = analogToPin(ulPin);
+  PinName p = analogToPinName(ulPin);
   if(p != NC) {
     value = adc_read_value(p);
     value = mapResolution(value, ADC_RESOLUTION, _readResolution);
@@ -71,7 +71,8 @@ void analogOutputInit(void) {
 void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 
   uint8_t do_init = 0;
-  PinName p = analogToPin(ulPin);
+  uint32_t dp = analogToDigital(ulPin);
+  PinName p = analogToPinName(ulPin);
   if(p != NC) {
     if(pin_in_pinmap(p, PinMap_DAC)) {
       if(is_pin_configured(p, g_anOutputPinConfigured) == false) {
@@ -91,13 +92,13 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
                    ulValue, do_init);
       } else { //DIGITAL PIN ONLY
         // Defaults to digital write
-        pinMode(p, OUTPUT);
+        pinMode(dp, OUTPUT);
         ulValue = mapResolution(ulValue, _writeResolution, 8);
         if (ulValue < 128) {
-          digitalWrite(p, LOW);
+          digitalWrite(dp, LOW);
         }
         else {
-          digitalWrite(p, HIGH);
+          digitalWrite(dp, HIGH);
 	  }
     }
   }
