@@ -71,8 +71,6 @@
   * @{
   */
 
-#define NB_MS_PER_TICK    10
-
 /**
   * @}
   */
@@ -109,9 +107,8 @@ static volatile uint32_t g_current_ms = 1;
   */
 uint32_t GetCurrentMicro(void)
 {
-  return (g_current_ms*1000) + (uint32_t)TIM6->CNT;
+  return (HAL_GetTick()*1000) + (SysTick->VAL / (SystemCoreClock / 1000000));
 }
-
 
 /**
   * @brief  Function called wto read the current millisecond
@@ -120,49 +117,17 @@ uint32_t GetCurrentMicro(void)
   */
 uint32_t GetCurrentMilli(void)
 {
-  return g_current_ms;
+  return HAL_GetTick();
 }
 
 /**
-  * @brief  Function called when the tick interruption falls
+  * @brief  Function called when t he tick interruption falls
   * @param  None
   * @retval None
   */
 void SysTick_Handler(void)
 {
   HAL_IncTick();
-}
-
-/**
-  * @brief  This function configures the source of the time base.
-  * @param  TickPriority: Tick interrupt priority
-  * @retval None
-  */
-HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
-{
-  /*Configure the SysTick to have interrupt in 10ms time basis*/
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/(1000/NB_MS_PER_TICK));
-
-  /*Configure the SysTick IRQ priority */
-  HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0);
-
-
-  /*configure TIM6 to get the microsecond precision time.
-  1MhZ is applied to the timer. Timer will count until 1ms ends*/
-  TimerHandleInit(TIM6_E, 1000 - 1, (uint16_t)((HAL_RCC_GetHCLKFreq()/2) / 1000000) - 1);
-
-   /* Return function status */
-  return HAL_OK;
-}
-
-/**
-  * @brief  TIM6 period elapsed callback in non blocking mode
-  * @param  None
-  * @retval None
-  */
-void HAL_TIM6_PeriodElapsedCallback(void)
-{
-  g_current_ms++;
 }
 
 /**

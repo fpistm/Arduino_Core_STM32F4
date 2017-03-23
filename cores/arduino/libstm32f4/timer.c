@@ -126,8 +126,6 @@ static void tim12_clock_enable(void)      { __TIM12_CLK_ENABLE(); }
 static void tim12_clock_reset(void)       { __TIM12_CLK_DISABLE(); }
 static uint32_t tim12_clock_source(void)  { return HAL_RCC_GetPCLK1Freq();}
 
-static void tim6_irqHandle(timer_id_e timer_id)   { HAL_TIM6_PeriodElapsedCallback(); }
-
 /**
   * @}
   */
@@ -216,7 +214,7 @@ static timer_conf_t g_timer_config[NB_TIMER_MANAGED] = {
   {
     //TIMER ID and IRQ
     .timInstance = TIM6, .irqtype = TIM6_DAC_IRQn,
-    .irqHandle = tim6_irqHandle,
+    .irqHandle = HAL_TIMx_PeriodElapsedCallback,
     .irqHandleOC = NULL,
     .timer_mode = TIMER_RESERVED,
     //timer clock init
