@@ -8,7 +8,7 @@ menu.upload_method=Upload method
 NUCLEO_F429ZI.name=Nucleo F429ZI
 
 NUCLEO_F429ZI.vid.0=0x0483
-NUCLEO_F429ZI.pid.0=0x374b
+NUCLEO_F429ZI.pid.0=0x5711
 NUCLEO_F429ZI.node=NODE_F429ZI
 
 NUCLEO_F429ZI.upload.tool=nucleoFlasher
@@ -18,12 +18,17 @@ NUCLEO_F429ZI.upload.maximum_data_size=262144
 
 NUCLEO_F429ZI.build.mcu=cortex-m4
 NUCLEO_F429ZI.build.f_cpu=16000000L
+NUCLEO_F429ZI.build.vid=0x0483
+NUCLEO_F429ZI.build.pid=0x5711
+NUCLEO_F429ZI.build.usb_product="NUCLEO-F429ZI"
 NUCLEO_F429ZI.build.board=NUCLEO_F429ZI
 NUCLEO_F429ZI.build.core=arduino
 NUCLEO_F429ZI.build.ldscript=linker_scripts/gcc/STM32F429ZI_FLASH.ld
 NUCLEO_F429ZI.build.variant=STM32F429ZI_Nucleo
 NUCLEO_F429ZI.build.variant_system_lib=libstm32f4_nucleo_f429zi_gcc_rel.a
-NUCLEO_F429ZI.build.extra_flags=-mthumb -DSTM32F429xx -DUSBCON
+#To enable USB add '-DUSBCON'
+#To enable HID (keyboard and mouse support) add also '-DUSBD_USE_HID_COMPOSITE'
+NUCLEO_F429ZI.build.extra_flags=-mthumb -DSTM32F429xx {build.usb_flags}
 
 NUCLEO_F429ZI.menu.upload_method.MassStorageMethod=Mass Storage
 NUCLEO_F429ZI.menu.upload_method.MassStorageMethod.upload.protocol=

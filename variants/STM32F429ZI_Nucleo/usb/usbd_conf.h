@@ -53,7 +53,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#ifdef USBCON
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
@@ -101,6 +101,7 @@
 
 /* Exported functions ------------------------------------------------------- */
 
+#endif // USBCON
 #endif /* __USBD_CONF_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

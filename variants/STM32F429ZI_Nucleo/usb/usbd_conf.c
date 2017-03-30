@@ -49,6 +49,7 @@
 #include "usbd_core.h"
 #include "hw_config.h"
 
+#ifdef USBCON
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -544,4 +545,5 @@ void USBD_LL_Delay(uint32_t Delay)
   HAL_Delay(Delay);
 }
 
+#endif // USBCON
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -37,9 +37,9 @@ int main( void )
 
 	delay(1);
 
-	#if defined(USBCON)
+#if defined(USBCON)
 	usbd_interface_init();
-	#endif
+#endif
 
 	setup();
 

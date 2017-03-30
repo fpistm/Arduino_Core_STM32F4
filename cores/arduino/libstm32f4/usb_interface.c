@@ -56,7 +56,7 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
+#ifdef USBCON
 /** @addtogroup STM32F4xx_System_Private_TypesDefinitions
   * @{
   */
@@ -91,8 +91,10 @@
 /** @addtogroup STM32F4xx_System_Private_Variables
   * @{
   */
-static USBD_HandleTypeDef g_USBD_Device;
-
+/* USB Device Core handle declaration */
+#ifdef USBD_USE_HID_COMPOSITE
+static USBD_HandleTypeDef hUSBD_Device_HID;
+#endif //USBD_USE_HID_COMPOSITE
 /**
   * @}
   */
@@ -116,14 +118,16 @@ static USBD_HandleTypeDef g_USBD_Device;
   */
 void usbd_interface_init(void)
 {
+#ifdef USBD_USE_HID_COMPOSITE
   /* Init Device Library */
-  USBD_Init(&g_USBD_Device, &HID_Desc, 0);
+  USBD_Init(&hUSBD_Device_HID, &HID_Desc, 0);
 
   /* Add Supported Class */
-  USBD_RegisterClass(&g_USBD_Device, USBD_COMPOSITE_HID_CLASS);
+  USBD_RegisterClass(&hUSBD_Device_HID, USBD_COMPOSITE_HID_CLASS);
 
   /* Start Device Process */
-  USBD_Start(&g_USBD_Device);
+  USBD_Start(&hUSBD_Device_HID);
+#endif // USBD_USE_HID_COMPOSITE
 }
 
 /**
@@ -133,7 +137,9 @@ void usbd_interface_init(void)
   */
 void usbd_interface_mouse_sendReport(uint8_t *report, uint16_t len)
 {
-  USBD_HID_MOUSE_SendReport(&g_USBD_Device, report, len);
+#ifdef USBD_USE_HID_COMPOSITE
+  USBD_HID_MOUSE_SendReport(&hUSBD_Device_HID, report, len);
+#endif // USBD_USE_HID_COMPOSITE
 }
 
 /**
@@ -143,7 +149,9 @@ void usbd_interface_mouse_sendReport(uint8_t *report, uint16_t len)
   */
 void usbd_interface_keyboard_sendReport(uint8_t *report, uint16_t len)
 {
-  USBD_HID_KEYBOARD_SendReport(&g_USBD_Device, report, len);
+#ifdef USBD_USE_HID_COMPOSITE
+  USBD_HID_KEYBOARD_SendReport(&hUSBD_Device_HID, report, len);
+#endif // USBD_USE_HID_COMPOSITE
 }
 
 /**
@@ -157,7 +165,7 @@ void usbd_interface_keyboard_sendReport(uint8_t *report, uint16_t len)
 /**
   * @}
   */
-
+#endif // USBCON
 #ifdef __cplusplus
 }
 #endif

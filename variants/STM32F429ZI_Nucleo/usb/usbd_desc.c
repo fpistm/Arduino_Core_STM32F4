@@ -48,24 +48,29 @@
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
-
+#ifdef USBCON
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-//ID Arduino
-// #define USBD_VID                      0x2341
-// #define USBD_PID                      0x0010
 
-//ID STMicroelectronics
-#define USBD_VID                      0x0483
-#define USBD_PID                      0x5711
-#define USBD_LANGID_STRING            0x409
-#define USBD_MANUFACTURER_STRING      "STMicroelectronics"
-#define USBD_PRODUCT_HS_STRING        "NUCLEO-F429ZI Mouse & Keyboard HID in HS Mode"
-#define USBD_PRODUCT_FS_STRING        "NUCLEO-F429ZI Mouse & Keyboard HID in FS Mode"
-#define USBD_CONFIGURATION_HS_STRING  "Mouse & Keyboard HID Config"
-#define USBD_INTERFACE_HS_STRING      "Mouse & Keyboard HID Interface"
-#define USBD_CONFIGURATION_FS_STRING  "Mouse & Keyboard HID Config"
-#define USBD_INTERFACE_FS_STRING      "Mouse & Keyboard HID Interface"
+//ID
+#define USBD_LANGID_STRING            0x409 //1033
+#if USBD_VID == 0x2341
+#define USBD_MANUFACTURER_STRING "Arduino LLC"
+#elif USBD_VID == 0x2A03
+#define USBD_MANUFACTURER_STRING "Arduino srl"
+#elif USBD_VID == 0x0483
+#define USBD_MANUFACTURER_STRING "STMicroelectronics"
+#elif !defined(USB_MANUFACTURER)
+// Fall through to unknown if no manufacturer name was provided in a macro
+#define USBD_MANUFACTURER_STRING "Unknown"
+#endif
+#ifdef USBD_USE_HID_COMPOSITE
+#define USBD_HID_PRODUCT_HS_STRING        "HID in HS Mode"
+#define USBD_HID_PRODUCT_FS_STRING        "HID in FS Mode"
+#define USBD_HID_CONFIGURATION_HS_STRING  "HID Config"
+#define USBD_HID_INTERFACE_HS_STRING      "HID Interface"
+#define USBD_HID_CONFIGURATION_FS_STRING  "HID Config"
+#define USBD_HID_INTERFACE_FS_STRING      "HID Interface"
 
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -90,6 +95,7 @@ USBD_DescriptorsTypeDef HID_Desc = {
   USBD_HID_ConfigStrDescriptor,
   USBD_HID_InterfaceStrDescriptor,
 };
+#endif //USBD_USE_HID_COMPOSITE
 
 /* USB Standard Device Descriptor */
 #if defined ( __ICCARM__ ) /*!< IAR Compiler */
@@ -142,6 +148,7 @@ __ALIGN_BEGIN static uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len);
 static void Get_SerialNum(void);
 
+#ifdef USBD_USE_HID_COMPOSITE
 /**
   * @brief  Returns the device descriptor.
   * @param  speed: Current device speed
@@ -176,11 +183,11 @@ uint8_t *USBD_HID_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
 {
   if(speed == USBD_SPEED_HIGH)
   {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_HS_STRING, USBD_StrDesc, length);
+    USBD_GetString((uint8_t *)USBD_HID_PRODUCT_HS_STRING, USBD_StrDesc, length);
   }
   else
   {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_FS_STRING, USBD_StrDesc, length);
+    USBD_GetString((uint8_t *)USBD_HID_PRODUCT_FS_STRING, USBD_StrDesc, length);
   }
   return USBD_StrDesc;
 }
@@ -223,11 +230,11 @@ uint8_t *USBD_HID_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   if(speed == USBD_SPEED_HIGH)
   {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_HS_STRING, USBD_StrDesc, length);
+    USBD_GetString((uint8_t *)USBD_HID_CONFIGURATION_HS_STRING, USBD_StrDesc, length);
   }
   else
   {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
+    USBD_GetString((uint8_t *)USBD_HID_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
   }
   return USBD_StrDesc;
 }
@@ -242,15 +249,15 @@ uint8_t *USBD_HID_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
 {
   if(speed == USBD_SPEED_HIGH)
   {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_HS_STRING, USBD_StrDesc, length);
+    USBD_GetString((uint8_t *)USBD_HID_INTERFACE_HS_STRING, USBD_StrDesc, length);
   }
   else
   {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_FS_STRING, USBD_StrDesc, length);
+    USBD_GetString((uint8_t *)USBD_HID_INTERFACE_FS_STRING, USBD_StrDesc, length);
   }
   return USBD_StrDesc;
 }
-
+#endif //USBD_USE_HID_COMPOSITE
 /**
   * @brief  Create the serial number string descriptor
   * @param  None
@@ -300,5 +307,5 @@ static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len)
     pbuf[ 2* idx + 1] = 0;
   }
 }
-
+#endif // USBCON
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -47,7 +47,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __USBD_DESC_H
 #define __USBD_DESC_H
-
+#ifdef USBCON
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_def.h"
 
@@ -61,7 +61,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 extern USBD_DescriptorsTypeDef HID_Desc;
-
+#endif // USBCON
 #endif /* __USBD_DESC_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

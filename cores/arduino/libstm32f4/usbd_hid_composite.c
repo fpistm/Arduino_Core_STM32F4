@@ -46,11 +46,13 @@
   ******************************************************************************
   */
 
+#ifdef USBCON
+#ifdef USBD_USE_HID_COMPOSITE
+
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_hid_composite.h"
 #include "usbd_desc.h"
 #include "usbd_ctlreq.h"
-
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
@@ -92,7 +94,6 @@
 /** @defgroup USBD_HID_Private_FunctionPrototypes
   * @{
   */
-
 
 static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev,
                                uint8_t cfgidx);
@@ -740,19 +741,6 @@ static uint8_t  *USBD_HID_GetDeviceQualifierDesc (uint16_t *length)
   *length = sizeof (USBD_HID_DeviceQualifierDesc);
   return USBD_HID_DeviceQualifierDesc;
 }
-
-/**
-  * @}
-  */
-
-
-/**
-  * @}
-  */
-
-
-/**
-  * @}
-  */
-
+#endif // USBD_USE_HID_COMPOSITE
+#endif // USBCON
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

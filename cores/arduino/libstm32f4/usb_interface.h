@@ -38,6 +38,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __USB_INTERFACE_H
 #define __USB_INTERFACE_H
+#ifdef USBCON
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_desc.h"
@@ -57,10 +58,10 @@ void usbd_interface_init(void);
 void usbd_interface_mouse_sendReport(uint8_t *report, uint16_t len);
 void usbd_interface_keyboard_sendReport(uint8_t *report, uint16_t len);
 
-
 #ifdef __cplusplus
 }
 #endif
+#endif // USBCON
 
 #endif /* __USB_INTERFACE_H */
 
