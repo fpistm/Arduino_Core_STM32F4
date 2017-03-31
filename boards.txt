@@ -17,6 +17,7 @@ NUCLEO_F429ZI.upload.maximum_size=2097151
 NUCLEO_F429ZI.upload.maximum_data_size=262144
 
 NUCLEO_F429ZI.build.mcu=cortex-m4
+NUCLEO_F429ZI.build.f_cpu=16000000L
 NUCLEO_F429ZI.build.board=NUCLEO_F429ZI
 NUCLEO_F429ZI.build.core=arduino
 NUCLEO_F429ZI.build.ldscript=linker_scripts/gcc/STM32F429ZI_FLASH.ld

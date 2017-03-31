@@ -37,8 +37,6 @@ extern "C"{
 
 #include "wiring_constants.h"
 
-#define F_CPU SystemCoreClock //To be compatible with Arduino delay
-
 #define clockCyclesPerMicrosecond() ( SystemCoreClock / 1000000L )
 #define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
