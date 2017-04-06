@@ -16,7 +16,19 @@ SPIClass SPI;
 
 SPIClass::SPIClass() : g_active_id(-1)
 {
+  _spi.pin_miso = digitalToPinName(MISO);
+  _spi.pin_mosi = digitalToPinName(MOSI);
+  _spi.pin_sclk = digitalToPinName(SCLK);
+  _spi.pin_ssel = NC;
+}
 
+SPIClass::SPIClass(uint8_t mosi, uint8_t miso, uint8_t sclk, uint8_t ssel) : g_active_id(-1)
+{
+  _spi.pin_miso = digitalToPinName(miso);
+  _spi.pin_mosi = digitalToPinName(mosi);
+  _spi.pin_sclk = digitalToPinName(sclk);
+  // If no ssel pin used, set it to value NUM_DIGITAL_PINS
+  _spi.pin_ssel = digitalToPinName(ssel);
 }
 
 //begin using the default chip select
@@ -36,12 +48,13 @@ void SPIClass::begin(uint8_t _pin)
     digitalWrite(_pin, HIGH);
   }
 
-  spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+  spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
   g_active_id = _pin;
 }
 
 void SPIClass::usingInterrupt(uint8_t interruptNumber)
 {
+  UNUSED(interruptNumber);
   //Not implemented
 }
 
@@ -58,7 +71,8 @@ void SPIClass::beginTransaction(uint8_t _pin, SPISettings settings)
   } else {
     spiSettings[_pin].msb = LSBFIRST;
   }
-  spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+
+  spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
   g_active_id = _pin;
 }
 
@@ -69,12 +83,13 @@ void SPIClass::endTransaction(void)
 
 void SPIClass::end(uint8_t _pin)
 {
+  UNUSED(_pin);
   end();
 }
 
 void SPIClass::end()
 {
-  spi_deinit(SPI_1);
+  spi_deinit(&_spi);
   g_active_id = -1;
 }
 
@@ -91,7 +106,7 @@ void SPIClass::setBitOrder(uint8_t _pin, BitOrder _bitOrder)
     spiSettings[_pin].bOrder = LSBFIRST;
   }
 
-  spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+  spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
   g_active_id = _pin;
 }
 
@@ -110,7 +125,7 @@ void SPIClass::setDataMode(uint8_t _pin, uint8_t _mode)
     spiSettings[_pin].dMode = SPI_MODE_3;
   }
 
-  spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+  spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
   g_active_id = _pin;
 }
 
@@ -146,7 +161,7 @@ void SPIClass::setClockDivider(uint8_t _pin, uint8_t _divider)
     break;
   }
 
-  spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+  spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
   g_active_id = _pin;
 }
 
@@ -162,14 +177,14 @@ byte SPIClass::transfer(uint8_t _pin, uint8_t data, SPITransferMode _mode)
     return rx_buffer;
 
   if(_pin != g_active_id) {
-    spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+    spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
     g_active_id = _pin;
   }
 
   if(_pin != BOARD_SPI_OWN_SS)
     digitalWrite(_pin, LOW);
 
-  spi_transfer(SPI_1, &data, &rx_buffer, sizeof(uint8_t), 10000000);
+  spi_transfer(&_spi, &data, &rx_buffer, sizeof(uint8_t), 10000000);
 
   if((_pin != BOARD_SPI_OWN_SS) && (_mode == SPI_LAST))
     digitalWrite(_pin, HIGH);
@@ -185,14 +200,14 @@ uint16_t SPIClass::transfer16(uint8_t _pin, uint16_t data, SPITransferMode _mode
     return rx_buffer;
 
   if(_pin != g_active_id) {
-    spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+    spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
     g_active_id = _pin;
   }
 
   if(_pin != BOARD_SPI_OWN_SS)
     digitalWrite(_pin, LOW);
 
-  spi_transfer(SPI_1, (uint8_t *)&data, (uint8_t *)&rx_buffer, sizeof(uint16_t), 10000000);
+  spi_transfer(&_spi, (uint8_t *)&data, (uint8_t *)&rx_buffer, sizeof(uint16_t), 10000000);
 
   if((_pin != BOARD_SPI_OWN_SS) && (_mode == SPI_LAST))
     digitalWrite(_pin, HIGH);
@@ -206,14 +221,14 @@ void SPIClass::transfer(uint8_t _pin, void *_buf, size_t _count, SPITransferMode
     return;
 
   if(_pin != g_active_id) {
-    spi_init(SPI_1, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
+    spi_init(&_spi, spiSettings[_pin].clk, spiSettings[_pin].dMode, spiSettings[_pin].msb);
     g_active_id = _pin;
   }
 
   if(_pin != BOARD_SPI_OWN_SS)
     digitalWrite(_pin, LOW);
 
-  spi_send(SPI_1,(uint8_t *)_buf, _count,10000);
+  spi_send(&_spi,(uint8_t *)_buf, _count,10000);
 
   if((_pin != BOARD_SPI_OWN_SS) && (_mode == SPI_LAST))
     digitalWrite(_pin, HIGH);

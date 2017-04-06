@@ -67,3 +67,19 @@ bool pin_in_pinmap(PinName pin, const PinMap* map) {
   }
   return false;
 }
+
+uint32_t pinmap_merge(uint32_t a, uint32_t b) {
+    // both are the same (inc both NC)
+    if (a == b)
+        return a;
+
+    // one (or both) is not connected
+    if (a == (uint32_t)NC)
+        return b;
+    if (b == (uint32_t)NC)
+        return a;
+
+    // mis-match error case
+    // error("pinmap mis-match");
+    return (uint32_t)NC;
+}

@@ -41,6 +41,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "PeripheralPins.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -48,11 +49,17 @@
 
 /* Exported types ------------------------------------------------------------*/
 
-///@brief define the possible SPI instances
-typedef enum {
-  SPI_1,
-  NB_SPI_INSTANCES
-}spi_instance_e;
+struct spi_s {
+    SPI_HandleTypeDef handle;
+    SPI_TypeDef *spi;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+};
+
+typedef struct spi_s spi_t;
+
 
 ///@brief specifies the SPI speed bus in HZ.
 #define SPI_SPEED_CLOCK_DIV2_MHZ    ((uint32_t)(HAL_RCC_GetPCLK2Freq()/2))
@@ -89,11 +96,10 @@ typedef enum {
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void spi_init(spi_instance_e spi_id, uint32_t speed, spi_mode_e mode, uint8_t msb);
-void spi_deinit(spi_instance_e spi_id);
-spi_status_e spi_send(spi_instance_e spi_id, uint8_t *Data,
-                      uint16_t len, uint32_t Timeout);
-spi_status_e spi_transfer(spi_instance_e spi_id, uint8_t * tx_buffer,
+void spi_init(spi_t *obj, uint32_t speed, spi_mode_e mode, uint8_t msb);
+void spi_deinit(spi_t *obj);
+spi_status_e spi_send(spi_t *obj, uint8_t *Data, uint16_t len, uint32_t Timeout);
+spi_status_e spi_transfer(spi_t *obj, uint8_t * tx_buffer,
                       uint8_t * rx_buffer, uint16_t len, uint32_t Timeout);
 
 #ifdef __cplusplus

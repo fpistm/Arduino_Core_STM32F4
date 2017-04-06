@@ -129,17 +129,15 @@ uint32_t pinNametoPinNumber(PinName p);
 #define BOARD_SPI_DEFAULT_SS    10
 
 //In case SPI CS channel is not used we define a default one
-#define BOARD_SPI_OWN_SS        SPI_CHANNELS_NUM
+#define BOARD_SPI_OWN_SS    SPI_CHANNELS_NUM
 
-#define SPI_INTERFACES_COUNT    1
-
-static const uint8_t SS   = BOARD_SPI_DEFAULT_SS;
-static const uint8_t SS1  = 4;
-static const uint8_t SS2  = 7;
-static const uint8_t SS3  = 8;
-static const uint8_t MOSI = 11;
-static const uint8_t MISO = 12;
-static const uint8_t SCK  = 13;
+#define SS    BOARD_SPI_DEFAULT_SS
+#define SS1   4
+#define SS2   7
+#define SS3   8
+#define MOSI  11
+#define MISO  12
+#define SCLK   13
 
 //Enable Firmata
 #define STM32 1

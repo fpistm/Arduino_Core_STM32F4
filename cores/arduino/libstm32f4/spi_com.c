@@ -70,35 +70,6 @@
   * @{
   */
 
-/// @brief defines the global attributes of the SPI
-typedef struct {
-  uint8_t init_done;
-  SPI_HandleTypeDef spiHandle;
-  SPI_TypeDef *spi_instance;
-  void (*spi_clock_init)(void);
-  void (*spi_sck_clock_init)(void);
-  void (*spi_miso_clock_init)(void);
-  void (*spi_mosi_clock_init)(void);
-  GPIO_TypeDef  *mosi_port;
-  uint32_t mosi_pin;
-  uint32_t mosi_mode;
-  uint32_t mosi_pull;
-  uint32_t mosi_speed;
-  uint32_t mosi_alternate;
-  GPIO_TypeDef  *miso_port;
-  uint32_t miso_pin;
-  uint32_t miso_mode;
-  uint32_t miso_pull;
-  uint32_t miso_speed;
-  uint32_t miso_alternate;
-  GPIO_TypeDef  *sck_port;
-  uint32_t sck_pin;
-  uint32_t sck_mode;
-  uint32_t sck_pull;
-  uint32_t sck_speed;
-  uint32_t sck_alternate;
-} spi_init_info_t;
-
 /**
   * @}
   */
@@ -106,11 +77,6 @@ typedef struct {
 /** @addtogroup STM32F4xx_System_Private_Macros
   * @{
   */
-
-static void SPI1_CLK_ENABLE(void)                { __HAL_RCC_SPI1_CLK_ENABLE();  }
-static void SPI1_SCK_GPIO_CLK_ENABLE(void)       { __HAL_RCC_GPIOA_CLK_ENABLE(); }
-static void SPI1_MISO_GPIO_CLK_ENABLE(void)      { __HAL_RCC_GPIOA_CLK_ENABLE(); }
-static void SPI1_MOSI_GPIO_CLK_ENABLE(void)      { __HAL_RCC_GPIOA_CLK_ENABLE(); }
 
 /**
   * @}
@@ -120,34 +86,10 @@ static void SPI1_MOSI_GPIO_CLK_ENABLE(void)      { __HAL_RCC_GPIOA_CLK_ENABLE();
   * @{
   */
 
-static spi_init_info_t spi_init_info[NB_SPI_INSTANCES] = {
-  {
-    .init_done = 0,
-    .spi_instance = SPI1,
-    .spi_clock_init = SPI1_CLK_ENABLE,
-    .spi_sck_clock_init = SPI1_SCK_GPIO_CLK_ENABLE,
-    .spi_miso_clock_init = SPI1_MISO_GPIO_CLK_ENABLE,
-    .spi_mosi_clock_init = SPI1_MOSI_GPIO_CLK_ENABLE,
-    .mosi_port = GPIOA,
-    .mosi_pin =  GPIO_PIN_7,
-    .mosi_speed = GPIO_SPEED_FREQ_HIGH,
-    .mosi_pull = GPIO_PULLDOWN,
-    .mosi_mode = GPIO_MODE_AF_PP,
-    .mosi_alternate = GPIO_AF5_SPI1,
-    .miso_port = GPIOA,
-    .miso_pin = GPIO_PIN_6,
-    .miso_speed = GPIO_SPEED_FREQ_HIGH,
-    .miso_pull = GPIO_PULLDOWN,
-    .miso_mode = GPIO_MODE_AF_PP,
-    .miso_alternate = GPIO_AF5_SPI1,
-    .sck_port = GPIOA,
-    .sck_pin = GPIO_PIN_5,
-    .sck_speed = GPIO_SPEED_FREQ_HIGH,
-    .sck_pull = GPIO_PULLDOWN,
-    .sck_mode = GPIO_MODE_AF_PP,
-    .sck_alternate = GPIO_AF5_SPI1,
-  }
-};
+static PinName g_pin_mosi = NC;
+static PinName g_pin_miso = NC;
+static PinName g_pin_sclk = NC;
+static PinName g_pin_ssel = NC;
 
 /**
   * @}
@@ -166,75 +108,98 @@ static spi_init_info_t spi_init_info[NB_SPI_INSTANCES] = {
   */
 /**
   * @brief  SPI initialization function
-  * @param  spi_id : one of the SPI ids
+  * @param  obj : pointer to spi_t structure
   * @param  speed : spi output speed
   * @param  mode : one of the spi modes
   * @param  msb : set to 1 in msb first
   * @retval None
   */
-void spi_init(spi_instance_e spi_id, uint32_t speed, spi_mode_e mode, uint8_t msb)
+void spi_init(spi_t *obj, uint32_t speed, spi_mode_e mode, uint8_t msb)
 {
+  if(obj == NULL)
+    return;
 
-  ///perform SPI initialization Here
-  SPI_HandleTypeDef *spiHandle;
+  SPI_HandleTypeDef *handle = &(obj->handle);
 
-  if(spi_id >= NB_SPI_INSTANCES) {
+  // Determine the SPI to use
+  uint32_t spi_mosi = pinmap_peripheral(obj->pin_mosi, PinMap_SPI_MOSI);
+  uint32_t spi_miso = pinmap_peripheral(obj->pin_miso, PinMap_SPI_MISO);
+  uint32_t spi_sclk = pinmap_peripheral(obj->pin_sclk, PinMap_SPI_SCLK);
+  uint32_t spi_ssel = pinmap_peripheral(obj->pin_ssel, PinMap_SPI_SSEL);
+
+  uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+  uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+  obj->spi = (SPI_TypeDef *)pinmap_merge(spi_data, spi_cntl);
+
+  // Are all pins connected to the same SPI instance?
+  if(obj->spi == (SPI_TypeDef *)NC) {
+    printf("ERROR: SPI pins mismatch\n");
     return;
   }
 
-  //###-- Configure the SPI peripheral #######################################
-  // Set the SPI parameters
-  spiHandle               = &spi_init_info[spi_id].spiHandle;
-  spiHandle->Instance = spi_init_info[spi_id].spi_instance;
-
-  //As APB clock is running at 32MHz, compute the speeds function of this
-  if(speed >= SPI_SPEED_CLOCK_DIV2_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  } else if(speed >= SPI_SPEED_CLOCK_DIV4_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
-  } else if (speed >= SPI_SPEED_CLOCK_DIV8_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
-  } else if (speed >= SPI_SPEED_CLOCK_DIV16_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-  } else if (speed >= SPI_SPEED_CLOCK_DIV32_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-  } else if (speed >= SPI_SPEED_CLOCK_DIV64_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
-  } else if (speed >= SPI_SPEED_CLOCK_DIV128_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
-  } else if (speed >= SPI_SPEED_CLOCK_DIV256_MHZ) {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  // Configure the SPI pins
+  g_pin_mosi = obj->pin_mosi;
+  g_pin_miso = obj->pin_miso;
+  g_pin_sclk = obj->pin_sclk;
+  if (obj->pin_ssel != NC) {
+    g_pin_ssel = obj->pin_ssel;
   } else {
-      spiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+    g_pin_ssel = NC;
+    handle->Init.NSS = SPI_NSS_SOFT;
+  }
+
+  /* Fill default value */
+  handle->Instance               = obj->spi;
+  handle->Init.Mode              = SPI_MODE_MASTER;
+
+  if(speed >= SPI_SPEED_CLOCK_DIV2_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  } else if(speed >= SPI_SPEED_CLOCK_DIV4_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  } else if (speed >= SPI_SPEED_CLOCK_DIV8_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  } else if (speed >= SPI_SPEED_CLOCK_DIV16_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  } else if (speed >= SPI_SPEED_CLOCK_DIV32_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  } else if (speed >= SPI_SPEED_CLOCK_DIV64_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+  } else if (speed >= SPI_SPEED_CLOCK_DIV128_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+  } else if (speed >= SPI_SPEED_CLOCK_DIV256_MHZ) {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  } else {
+    handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  }
+
+  handle->Init.Direction         = SPI_DIRECTION_2LINES;
+
+  if((mode == SPI_MODE_0)||(mode == SPI_MODE_2)) {
+    handle->Init.CLKPhase          = SPI_PHASE_1EDGE;
+  } else {
+    handle->Init.CLKPhase          = SPI_PHASE_2EDGE;
   }
 
   if((mode == SPI_MODE_0)||(mode == SPI_MODE_1)) {
-    spiHandle->Init.CLKPolarity       = SPI_POLARITY_LOW;
+    handle->Init.CLKPolarity       = SPI_POLARITY_LOW;
   } else {
-    spiHandle->Init.CLKPolarity       = SPI_POLARITY_HIGH;
+    handle->Init.CLKPolarity       = SPI_POLARITY_HIGH;
   }
 
-  if((mode == SPI_MODE_0)||(mode == SPI_MODE_2)) {
-    spiHandle->Init.CLKPhase          = SPI_PHASE_1EDGE;
-  } else {
-    spiHandle->Init.CLKPhase          = SPI_PHASE_2EDGE;
-  }
+  handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLED;
+  handle->Init.CRCPolynomial     = 7;
+  handle->Init.DataSize          = SPI_DATASIZE_8BIT;
 
   if(msb == 0) {
-    spiHandle->Init.FirstBit          = SPI_FIRSTBIT_LSB;
+    handle->Init.FirstBit          = SPI_FIRSTBIT_LSB;
   } else {
-    spiHandle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
   }
 
-  spiHandle->Init.Direction         = SPI_DIRECTION_2LINES;
-  spiHandle->Init.DataSize          = SPI_DATASIZE_8BIT;
-  spiHandle->Init.TIMode            = SPI_TIMODE_DISABLE;
-  spiHandle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-  spiHandle->Init.CRCPolynomial     = 7;
-  spiHandle->Init.NSS               = SPI_NSS_SOFT;
-  spiHandle->Init.Mode              = SPI_MODE_MASTER;
+  handle->Init.TIMode            = SPI_TIMODE_DISABLED;
 
-  HAL_SPI_Init(spiHandle);
+  HAL_SPI_Init(handle);
 }
 
 /**
@@ -245,128 +210,209 @@ void spi_init(spi_instance_e spi_id, uint32_t speed, spi_mode_e mode, uint8_t ms
   */
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  uint8_t spi_id = NB_SPI_INSTANCES;
+  GPIO_InitTypeDef  GPIO_InitStruct;
+  GPIO_TypeDef *port;
 
-  for(uint8_t i = 0; i < NB_SPI_INSTANCES; i++) {
-    if(spi_init_info[i].spi_instance == hspi->Instance) {
-      spi_id = i;
-    }
+  if(g_pin_mosi != NC) {
+    port = set_GPIO_Port_Clock(STM_PORT(g_pin_mosi));
+    GPIO_InitStruct.Pin       = STM_GPIO_PIN(g_pin_mosi);
+    GPIO_InitStruct.Mode      = STM_PIN_MODE(pinmap_function(g_pin_mosi,PinMap_SPI_MOSI));
+    GPIO_InitStruct.Pull      = STM_PIN_PUPD(pinmap_function(g_pin_mosi,PinMap_SPI_MOSI));
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = STM_PIN_AFNUM(pinmap_function(g_pin_mosi,PinMap_SPI_MOSI));
+    HAL_GPIO_Init(port, &GPIO_InitStruct);
   }
 
-  if(spi_id == NB_SPI_INSTANCES)
-    return;
-
-  if(spi_init_info[spi_id].init_done == 0) {
-
-    //##-1- Enable peripherals and GPIO Clocks #################################
-    spi_init_info[spi_id].spi_sck_clock_init();
-    spi_init_info[spi_id].spi_miso_clock_init();
-    spi_init_info[spi_id].spi_mosi_clock_init();
-
-    // Enable SPI clock
-    spi_init_info[spi_id].spi_clock_init();
-
-    //##-2- Configure peripheral GPIO ##########################################
-
-    // SPI SCK GPIO pin configuration
-    GPIO_InitStructure.Pin       = spi_init_info[spi_id].sck_pin;
-    GPIO_InitStructure.Mode      = spi_init_info[spi_id].sck_mode;
-    GPIO_InitStructure.Pull      = spi_init_info[spi_id].sck_pull;
-    GPIO_InitStructure.Speed     = spi_init_info[spi_id].sck_speed;
-    GPIO_InitStructure.Alternate = spi_init_info[spi_id].sck_alternate;
-    HAL_GPIO_Init(spi_init_info[spi_id].sck_port, &GPIO_InitStructure);
-
-    // SPI MISO GPIO pin configuration
-    GPIO_InitStructure.Pin       = spi_init_info[spi_id].miso_pin;
-    GPIO_InitStructure.Mode      = spi_init_info[spi_id].miso_mode;
-    GPIO_InitStructure.Pull      = spi_init_info[spi_id].miso_pull;
-    GPIO_InitStructure.Speed     = spi_init_info[spi_id].miso_speed;
-    GPIO_InitStructure.Alternate = spi_init_info[spi_id].miso_alternate;
-    HAL_GPIO_Init(spi_init_info[spi_id].miso_port, &GPIO_InitStructure);
-
-    // SPI MOSI GPIO pin configuration
-    GPIO_InitStructure.Pin       = spi_init_info[spi_id].mosi_pin;
-    GPIO_InitStructure.Mode      = spi_init_info[spi_id].mosi_mode;
-    GPIO_InitStructure.Pull      = spi_init_info[spi_id].mosi_pull;
-    GPIO_InitStructure.Speed     = spi_init_info[spi_id].mosi_speed;
-    GPIO_InitStructure.Alternate = spi_init_info[spi_id].mosi_alternate;
-    HAL_GPIO_Init(spi_init_info[spi_id].mosi_port, &GPIO_InitStructure);
-    spi_init_info[spi_id].init_done = 1;
+  if(g_pin_miso != NC) {
+    port = set_GPIO_Port_Clock(STM_PORT(g_pin_miso));
+    GPIO_InitStruct.Pin       = STM_GPIO_PIN(g_pin_miso);
+    GPIO_InitStruct.Mode      = STM_PIN_MODE(pinmap_function(g_pin_miso,PinMap_SPI_MISO));
+    GPIO_InitStruct.Pull      = STM_PIN_PUPD(pinmap_function(g_pin_miso,PinMap_SPI_MISO));
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = STM_PIN_AFNUM(pinmap_function(g_pin_miso,PinMap_SPI_MISO));
+    HAL_GPIO_Init(port, &GPIO_InitStruct);
   }
+
+  if(g_pin_sclk != NC) {
+    port = set_GPIO_Port_Clock(STM_PORT(g_pin_sclk));
+    GPIO_InitStruct.Pin       = STM_GPIO_PIN(g_pin_sclk);
+    GPIO_InitStruct.Mode      = STM_PIN_MODE(pinmap_function(g_pin_sclk,PinMap_SPI_SCLK));
+    GPIO_InitStruct.Pull      = STM_PIN_PUPD(pinmap_function(g_pin_sclk,PinMap_SPI_SCLK));
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = STM_PIN_AFNUM(pinmap_function(g_pin_sclk,PinMap_SPI_SCLK));
+    HAL_GPIO_Init(port, &GPIO_InitStruct);
+  }
+
+  if(g_pin_ssel != NC) {
+    port = set_GPIO_Port_Clock(STM_PORT(g_pin_ssel));
+    GPIO_InitStruct.Pin       = STM_GPIO_PIN(g_pin_ssel);
+    GPIO_InitStruct.Mode      = STM_PIN_MODE(pinmap_function(g_pin_ssel,PinMap_SPI_SSEL));
+    GPIO_InitStruct.Pull      = STM_PIN_PUPD(pinmap_function(g_pin_ssel,PinMap_SPI_SSEL));
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = STM_PIN_AFNUM(pinmap_function(g_pin_ssel,PinMap_SPI_SSEL));
+    HAL_GPIO_Init(port, &GPIO_InitStruct);
+  }
+
+#if defined SPI1_BASE
+  // Enable SPI clock
+  if (hspi->Instance == SPI1) {
+      __HAL_RCC_SPI1_CLK_ENABLE();
+  }
+#endif
+
+#if defined SPI2_BASE
+  if (hspi->Instance == SPI2) {
+      __HAL_RCC_SPI2_CLK_ENABLE();
+  }
+#endif
+
+#if defined SPI3_BASE
+  if (hspi->Instance == SPI3) {
+      __HAL_RCC_SPI3_CLK_ENABLE();
+  }
+#endif
+
+#if defined SPI4_BASE
+  if (hspi->Instance == SPI4) {
+      __HAL_RCC_SPI4_CLK_ENABLE();
+  }
+#endif
+
+#if defined SPI5_BASE
+  if (hspi->Instance == SPI5) {
+      __HAL_RCC_SPI5_CLK_ENABLE();
+  }
+#endif
+
+#if defined SPI6_BASE
+  if (hspi->Instance == SPI6) {
+      __HAL_RCC_SPI6_CLK_ENABLE();
+  }
+#endif
 }
 
 /**
   * @brief This function is implemented to deinitialize the SPI interface
   *        (IOs + SPI block)
-  * @param  spi_id : one of the SPI ids
+  * @param  obj : pointer to spi_t structure
   * @retval None
   */
-void spi_deinit(spi_instance_e spi_id)
+void spi_deinit(spi_t *obj)
 {
-  if(spi_id >= NB_SPI_INSTANCES) {
+  if(obj == NULL)
     return;
+
+  SPI_HandleTypeDef *handle = &(obj->handle);
+
+  HAL_SPI_DeInit(handle);
+}
+
+/**
+  * @brief  De-Initialize the SPI MSP.
+  * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
+  *               the configuration information for SPI module.
+  * @retval None
+  */
+void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
+{
+#if defined SPI1_BASE
+  // Reset SPI and disable clock
+  if (hspi->Instance == SPI1) {
+      __HAL_RCC_SPI1_FORCE_RESET();
+      __HAL_RCC_SPI1_RELEASE_RESET();
+      __HAL_RCC_SPI1_CLK_DISABLE();
   }
+#endif
+#if defined SPI2_BASE
+  if (hspi->Instance == SPI2) {
+      __HAL_RCC_SPI2_FORCE_RESET();
+      __HAL_RCC_SPI2_RELEASE_RESET();
+      __HAL_RCC_SPI2_CLK_DISABLE();
+  }
+#endif
 
-  HAL_SPI_DeInit(&spi_init_info[spi_id].spiHandle);
+#if defined SPI3_BASE
+  if (hspi->Instance == SPI3) {
+      __HAL_RCC_SPI3_FORCE_RESET();
+      __HAL_RCC_SPI3_RELEASE_RESET();
+      __HAL_RCC_SPI3_CLK_DISABLE();
+  }
+#endif
 
-  HAL_GPIO_DeInit(spi_init_info[spi_id].sck_port,spi_init_info[spi_id].sck_pin);
-  HAL_GPIO_DeInit(spi_init_info[spi_id].miso_port,spi_init_info[spi_id].miso_pin);
-  HAL_GPIO_DeInit(spi_init_info[spi_id].mosi_port,spi_init_info[spi_id].mosi_pin);
-  spi_init_info[spi_id].init_done = 0;
+#if defined SPI4_BASE
+  if (hspi->Instance == SPI4) {
+      __HAL_RCC_SPI4_FORCE_RESET();
+      __HAL_RCC_SPI4_RELEASE_RESET();
+      __HAL_RCC_SPI4_CLK_DISABLE();
+  }
+#endif
+
+#if defined SPI5_BASE
+  if (hspi->Instance == SPI5) {
+      __HAL_RCC_SPI5_FORCE_RESET();
+      __HAL_RCC_SPI5_RELEASE_RESET();
+      __HAL_RCC_SPI5_CLK_DISABLE();
+  }
+#endif
+
+#if defined SPI6_BASE
+  if (hspi->Instance == SPI6) {
+      __HAL_RCC_SPI6_FORCE_RESET();
+      __HAL_RCC_SPI6_RELEASE_RESET();
+      __HAL_RCC_SPI6_CLK_DISABLE();
+  }
+#endif
 }
 
 /**
   * @brief This function is implemented by user to send data over SPI interface
-  * @param  spi_id : one of the SPI ids
+  * @param  obj : pointer to spi_t structure
   * @param  Data : data to be sent
   * @param  len : length in bytes of the data to be sent
   * @param  Timeout: Timeout duration in tick
   * @retval status of the send operation (0) in case of error
   */
-spi_status_e spi_send(spi_instance_e spi_id, uint8_t *Data,
-                      uint16_t len, uint32_t Timeout)
+spi_status_e spi_send(spi_t *obj, uint8_t *Data, uint16_t len, uint32_t Timeout)
 {
   spi_status_e ret = SPI_OK;
   HAL_StatusTypeDef hal_status;
 
-  if((spi_id >= NB_SPI_INSTANCES)||(len == 0)) {
+  if((obj == NULL) || (len == 0)) {
     return SPI_ERROR;
   }
 
-  hal_status = HAL_SPI_Transmit(&spi_init_info[spi_id].spiHandle,
-                      Data, len, Timeout);
+  hal_status = HAL_SPI_Transmit(&(obj->handle), Data, len, Timeout);
 
   if(hal_status == HAL_TIMEOUT) {
     ret = SPI_TIMEOUT;
   } else if(hal_status != HAL_OK) {
     ret = SPI_ERROR;
   }
+
   return ret;
 }
 
 /**
   * @brief This function is implemented by user to send/receive data over
   *         SPI interface
-  * @param  spi_id : one of the SPI ids
+  * @param  obj : pointer to spi_t structure
   * @param  tx_buffer : tx data to send before reception
   * @param  rx_buffer : data to receive
   * @param  len : length in byte of the data to send and receive
   * @param  Timeout: Timeout duration in tick
   * @retval status of the send operation (0) in case of error
   */
-spi_status_e spi_transfer(spi_instance_e spi_id, uint8_t * tx_buffer,
+spi_status_e spi_transfer(spi_t *obj, uint8_t * tx_buffer,
                       uint8_t * rx_buffer, uint16_t len, uint32_t Timeout)
 {
   spi_status_e ret = SPI_OK;
   HAL_StatusTypeDef hal_status;
 
-  if((spi_id >= NB_SPI_INSTANCES)||(len == 0)) {
+  if((obj == NULL) || (len == 0)) {
     return SPI_ERROR;
   }
 
-  hal_status = HAL_SPI_TransmitReceive(&spi_init_info[spi_id].spiHandle, tx_buffer,
-                            rx_buffer, len, Timeout);
+  hal_status = HAL_SPI_TransmitReceive(&(obj->handle), tx_buffer, rx_buffer, len, Timeout);
 
   if(hal_status == HAL_TIMEOUT) {
     ret = SPI_TIMEOUT;

@@ -85,6 +85,8 @@ extern "C" {
 #define STM_PIN_CHANNEL(X)          (((X) >> STM_PIN_CHAN_SHIFT) & STM_PIN_CHAN_MASK)
 #define STM_PIN_INVERTED(X)         (((X) >> STM_PIN_INV_SHIFT) & STM_PIN_INV_MASK)
 #define STM_PIN_ANALOG_CONTROL(X)   (((X) >> STM_PIN_AN_CTRL_SHIFT) & STM_PIN_AN_CTRL_MASK)
+#define STM_PIN_MODE(X)             ((STM_PIN_OD((X)) << 4) | \
+                                      (STM_PIN_FUNCTION((X)) & (~STM_PIN_OD_BITS)))
 
 #define STM_PIN_DEFINE(FUNC_OD, PUPD, AFNUM)  ((int)(FUNC_OD) |\
                           ((PUPD  & STM_PIN_PUPD_MASK) << STM_PIN_PUPD_SHIFT) |\
