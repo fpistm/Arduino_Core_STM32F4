@@ -121,7 +121,7 @@ uint32_t pinNametoPinNumber(PinName p);
 #define USER_BTN                81
 
 
-//SPI defintions
+//SPI definitions
 //define 16 channels. As many channel as digital IOs
 #define SPI_CHANNELS_NUM        16
 
@@ -137,7 +137,11 @@ uint32_t pinNametoPinNumber(PinName p);
 #define SS3   8
 #define MOSI  11
 #define MISO  12
-#define SCLK   13
+#define SCLK  13
+
+//I2C Definitions
+#define SDA   14
+#define SCL   15
 
 //Enable Firmata
 #define STM32 1
