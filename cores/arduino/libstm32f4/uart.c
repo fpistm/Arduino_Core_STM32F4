@@ -50,9 +50,9 @@
 #include "hw_config.h"
 #include "uart.h"
 #include "uart_emul.h"
-#include "timer.h"
 #include "digital_io.h"
 #include "interrupt.h"
+#include "variant.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -111,6 +111,7 @@ typedef struct {
   volatile uint8_t begin;
   volatile uint8_t end;
   uart_option_e uart_option;
+  stimer_t *_timer;
 }uart_emul_conf_t;
 
 /**
@@ -202,7 +203,8 @@ static uart_emul_conf_t g_uartEmul_config[NB_UART_EMUL_MANAGED] = {
     .data_available = 0,
     .begin = 0,
     .end = 0,
-    .uart_option = EMULATED_UART_E
+    .uart_option = EMULATED_UART_E,
+    ._timer = NULL
   }
 };
 
@@ -216,7 +218,7 @@ uint8_t g_rx_data[1];
 /** @addtogroup STM32F4xx_System_Private_FunctionPrototypes
   * @{
   */
-static void uart_emul_timer_irq(timer_id_e timer_id) {g_uartEmul_config[UART1_EMUL_E].uart_rx_irqHandle();}
+static void uart_emul_timer_irq(stimer_t *obj) {g_uartEmul_config[UART1_EMUL_E].uart_rx_irqHandle();}
 uart_id_e get_uart_id_from_handle(UART_HandleTypeDef *huart);
 
 /**
@@ -710,11 +712,13 @@ static void uart_emul_getc(uart_emul_id_e uart_id, uint8_t byte)
   * @param  irq : pointer to function to call
   * @retval None
   */
-void uart_emul_attached_handler(void (*irqHandle)(void))
+void uart_emul_attached_handler(stimer_t *obj, void (*irqHandle)(void))
 {
-  TimerHandleInit(TIM12_E, EMUL_TIMER_PERIOD - 1, (uint16_t)(HAL_RCC_GetHCLKFreq() / 1000) - 1); //50ms
+  obj->timer = TIMER_UART_EMULATED;
+  TimerHandleInit(obj, EMUL_TIMER_PERIOD - 1, (uint16_t)(HAL_RCC_GetHCLKFreq() / 1000) - 1); //50ms
   g_uartEmul_config[UART1_EMUL_E].uart_rx_irqHandle = irqHandle;
-  attachIntHandle(TIM12_E, uart_emul_timer_irq);
+  g_uartEmul_config[UART1_EMUL_E]._timer = obj;
+  attachIntHandle(obj, uart_emul_timer_irq);
 }
 
 /**
@@ -729,10 +733,10 @@ void HAL_UART_Emul_RxCpltCallback(UART_Emul_HandleTypeDef *huart)
 
   if(g_uartEmul_config[UART1_EMUL_E].uart_rx_irqHandle != NULL) {
     if(uart_emul_available(UART1_EMUL_E) < (UART_RCV_SIZE / 2)) {
-      setTimerCounter(TIM12_E, 0);
+      setTimerCounter(g_uartEmul_config[UART1_EMUL_E]._timer->timer, 0);
     }
     else if(uart_emul_available(UART1_EMUL_E) < (UART_RCV_SIZE/4*3)) {
-      setTimerCounter(TIM12_E, EMUL_TIMER_PERIOD - 1);
+      setTimerCounter(g_uartEmul_config[UART1_EMUL_E]._timer->timer, EMUL_TIMER_PERIOD - 1);
     }
     else {
       g_uartEmul_config[UART1_EMUL_E].uart_rx_irqHandle();

@@ -62,5 +62,8 @@ extern const PinMap PinMap_SPI_SSEL[];
 extern const PinMap PinMap_CAN_RD[];
 extern const PinMap PinMap_CAN_TD[];
 
+//*** TIMER ***
+extern const TimerMap TimerMap_CONFIG[];
+
 #endif
 

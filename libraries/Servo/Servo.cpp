@@ -40,17 +40,19 @@ uint8_t ServoCount = 0;                                    // the total number o
 #define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)   // minimum value in uS for this servo
 #define SERVO_MAX() (MAX_PULSE_WIDTH - this->max * 4)   // maximum value in uS for this servo
 
-#define TIMER_ID(_timer) ((timer_id_e)(_timer + TIM2_E))
-#define SERVO_TIMER(_timer_id)  ((timer16_Sequence_t)(_timer_id - TIM2_E))
+#define TIMER_ID(_timer) ((timer_id_e)(_timer))
+#define SERVO_TIMER(_timer_id)  ((timer16_Sequence_t)(_timer_id))
 
 /************ static functions common to all instances ***********************/
-static void ServoIrqHandle(timer_id_e timer_id, uint32_t channel)
+static void ServoIrqHandle(stimer_t *obj, uint32_t channel)
 {
+  uint8_t timer_id = obj->idx;
+
   if( timerChannel[SERVO_TIMER(timer_id)] < 0 ) {
-    setTimerCounter(timer_id, 0); // channel set to -1 indicated that refresh interval completed so reset the timer
+    setTimerCounter(obj, 0); // channel set to -1 indicated that refresh interval completed so reset the timer
   }
   else{
-    if(SERVO_INDEX(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]) < ServoCount && 
+    if(SERVO_INDEX(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]) < ServoCount &&
        SERVO(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]).Pin.isActive == true)
     {
       digitalWrite(SERVO(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]).Pin.nbr,LOW); // pulse this channel low if activated
@@ -58,34 +60,32 @@ static void ServoIrqHandle(timer_id_e timer_id, uint32_t channel)
   }
 
   timerChannel[SERVO_TIMER(timer_id)]++;    // increment to the next channel
-  if( SERVO_INDEX(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]) < ServoCount && 
+  if( SERVO_INDEX(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]) < ServoCount &&
       timerChannel[SERVO_TIMER(timer_id)] < SERVOS_PER_TIMER ) {
     if(SERVO(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]).Pin.isActive == true) {     // check if activated
       digitalWrite( SERVO(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]).Pin.nbr,HIGH); // its an active channel so pulse it high
     }
-    setCCRRegister(timer_id, channel, getTimerCounter(timer_id) + SERVO(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]).ticks);
+    setCCRRegister(obj, channel, getTimerCounter(obj) + SERVO(SERVO_TIMER(timer_id),timerChannel[SERVO_TIMER(timer_id)]).ticks);
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    if( getTimerCounter(timer_id) + 4 < usToTicks(REFRESH_INTERVAL) ) {  // allow a few ticks to ensure the next OCR1A not missed
-      setCCRRegister(timer_id, channel, (unsigned int)usToTicks(REFRESH_INTERVAL));
+    if( getTimerCounter(obj) + 4 < usToTicks(REFRESH_INTERVAL) ) {  // allow a few ticks to ensure the next OCR1A not missed
+      setCCRRegister(obj, channel, (unsigned int)usToTicks(REFRESH_INTERVAL));
     } else {
-      setCCRRegister(timer_id, channel, getTimerCounter(timer_id) + 4);  // at least REFRESH_INTERVAL has elapsed
+      setCCRRegister(obj, channel, getTimerCounter(obj) + 4);  // at least REFRESH_INTERVAL has elapsed
     }
     timerChannel[SERVO_TIMER(timer_id)] = -1; // this will get incremented at the end of the refresh period to start again at the first channel
   }
 }
 
-static void initISR(timer16_Sequence_t timer)
+static void initISR(stimer_t *obj)
 {
-  if(timer == _timer1)
-    TimerPulseInit(TIMER_ID(_timer1), REFRESH_INTERVAL*3, DEFAULT_PULSE_WIDTH, ServoIrqHandle);
+  TimerPulseInit(obj, REFRESH_INTERVAL*3, DEFAULT_PULSE_WIDTH, ServoIrqHandle);
 }
 
-static void finISR(timer16_Sequence_t timer)
+static void finISR(stimer_t *obj)
 {
-  if(timer == _timer1)
-    TimerPulseDeinit(TIMER_ID(_timer1));
+  TimerPulseDeinit(obj);
 }
 
 static boolean isTimerActive(timer16_Sequence_t timer)
@@ -128,7 +128,8 @@ uint8_t Servo::attach(int pin, int min, int max)
     // initialize the timer if it has not already been initialized
     timer = SERVO_INDEX_TO_TIMER(servoIndex);
     if (isTimerActive(timer) == false) {
-      initISR(timer);
+      _timer.idx = timer;
+      initISR(&_timer);
     }
     servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
   }
@@ -142,7 +143,7 @@ void Servo::detach()
   servos[this->servoIndex].Pin.isActive = false;
   timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if(isTimerActive(timer) == false) {
-    finISR(timer);
+    finISR(&_timer);
   }
 }
 
