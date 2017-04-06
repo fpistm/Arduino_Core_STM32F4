@@ -39,7 +39,7 @@ https://github.com/BlueVia/Official-Arduino
 // We are implementing it because NewSoftSerial does not deal correctly with floods
 // of data
 #include "GSM3CircularBuffer.h"
-#include <stm/pgmspace.h>
+#include <avr/pgmspace.h>
 
 class GSM3SoftSerialMgr
 {

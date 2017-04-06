@@ -27,7 +27,7 @@
 #endif
 #include "Adafruit_GFX.h"
 #include <SPI.h>
-#include <stm/pgmspace.h>
+#include <avr/pgmspace.h>
 
 // some flags for initR() :(
 #define INITR_GREENTAB 0x0

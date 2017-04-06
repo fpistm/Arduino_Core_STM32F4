@@ -33,7 +33,7 @@ https://github.com/BlueVia/Official-Arduino
 */
 #include "GSM3SoftSerial.h"
 #include "GSM3IO.h"
-#include <stm/pgmspace.h>
+#include <avr/pgmspace.h>
 #include "pins_arduino.h"
 #include <HardwareSerial.h>
 #include <Arduino.h>
