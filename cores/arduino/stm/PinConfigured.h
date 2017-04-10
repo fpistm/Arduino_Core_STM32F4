@@ -42,7 +42,7 @@ extern "C" {
 #define PINCONF_SHIFT(X) (STM_PIN(X))
 #define PINCONF_BIT(X)   (PINCONF_MASK << PINCONF_SHIFT(X))
 
-#define PINCONF_VAL(X, Y)   (((Y) << PINCONF_SHIFT(X)) && PINCONF_MASK)
+#define PINCONF_VAL(X, Y)   ((Y >> PINCONF_SHIFT(X)) & PINCONF_MASK)
 
 
 bool is_pin_configured(PinName pin, uint32_t* map);

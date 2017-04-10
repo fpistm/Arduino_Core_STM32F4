@@ -544,7 +544,7 @@ void pwm_start(PinName pin, uint32_t clock_freq,
       return;
     }
   }
-  timChannel = get_pwm_channel(g_current_pin);
+  timChannel = get_pwm_channel(pin);
   if (!IS_TIM_CHANNELS(timChannel)) return;
   //HAL_TIM_PWM_Stop(&timHandle, timChannel);
 
