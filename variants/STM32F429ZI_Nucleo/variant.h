@@ -144,10 +144,10 @@ uint32_t pinNametoPinNumber(PinName p);
 #define SCL   15
 
 //Timer Definitions
-//Do not use timer used by PWM pin. See PinMap_PWM.
+//Do not use timer used by PWM pins when possible. See PinMap_PWM.
 #define TIMER_TONE          TIM6
-#define TIMER_SERVO         TIM7
-#define TIMER_UART_EMULATED TIM6
+#define TIMER_UART_EMULATED TIM7
+#define TIMER_SERVO         TIM2 //Do not use basic timer: OC is required
 
 //Enable Firmata
 #define STM32 1
