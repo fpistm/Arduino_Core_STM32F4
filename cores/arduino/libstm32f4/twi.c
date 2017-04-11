@@ -74,8 +74,6 @@
 /// @brief I2C timout in tick unit
 #define I2C_TIMEOUT_TICK        100
 
-#define I2C_TXRX_BUFFER_SIZE    32
-
 #define SLAVE_MODE_TRANSMIT     0
 #define SLAVE_MODE_RECEIVE      1
 
@@ -95,39 +93,6 @@
   * @{
   */
 
-/// @brief defines the global attributes of the I2C
-typedef struct {
-  uint8_t init_done;
-  I2C_HandleTypeDef    i2c_handle;
-  I2C_TypeDef *i2c_instance;
-  IRQn_Type irq;
-  void (*i2c_clock_init)(void);
-  void (*i2c_scl_clock_init)(void);
-  void (*i2c_sda_clock_init)(void);
-  void (*i2c_clock_deinit)(void);
-  void (*i2c_scl_clock_deinit)(void);
-  void (*i2c_sda_clock_deinit)(void);
-  void (*i2c_force_reset)(void);
-  void (*i2c_release_reset)(void);
-  GPIO_TypeDef  *sda_port;
-  uint32_t sda_pin;
-  uint32_t sda_mode;
-  uint32_t sda_pull;
-  uint32_t sda_speed;
-  uint32_t sda_alternate;
-  GPIO_TypeDef  *scl_port;
-  uint32_t scl_pin;
-  uint32_t scl_mode;
-  uint32_t scl_pull;
-  uint32_t scl_speed;
-  uint32_t scl_alternate;
-  void (*i2c_onSlaveReceive)(i2c_instance_e, uint8_t *, int);
-  void (*i2c_onSlaveTransmit)(i2c_instance_e);
-  uint8_t i2cTxRxBuffer[I2C_TXRX_BUFFER_SIZE];
-  uint8_t i2cTxRxBufferSize;
-  uint8_t slaveMode;
-} i2c_init_info_t;
-
 /**
   * @}
   */
@@ -135,45 +100,10 @@ typedef struct {
 /** @addtogroup STM32F4xx_System_Private_Variables
   * @{
   */
-void i2c1_clk_enable(void)      { __HAL_RCC_I2C1_CLK_ENABLE();    }
-void i2c1_scl_clk_enable(void)  { __HAL_RCC_GPIOB_CLK_ENABLE();   }
-void i2c1_sda_clk_enable(void)  { __HAL_RCC_GPIOB_CLK_ENABLE();   }
-void i2c1_clk_disable(void)     { __HAL_RCC_I2C1_CLK_DISABLE();   }
-void i2c1_scl_clk_disable(void) { __HAL_RCC_GPIOB_CLK_DISABLE();  }
-void i2c1_sda_clk_disable(void) { __HAL_RCC_GPIOB_CLK_DISABLE();  }
-void i2c1_force_reset(void)     { __I2C1_FORCE_RESET();           }
-void i2c1_release_reset(void)   { __I2C1_RELEASE_RESET();         }
 
-static i2c_init_info_t g_i2c_init_info[NB_I2C_INSTANCES] = {
-  {
-    .init_done = 0,
-    .i2c_instance = I2C1,
-    .irq = I2C1_EV_IRQn,
-    .i2c_clock_init = i2c1_clk_enable,
-    .i2c_scl_clock_init = i2c1_scl_clk_enable,
-    .i2c_sda_clock_init = i2c1_sda_clk_enable,
-    .i2c_clock_deinit = i2c1_clk_disable,
-    .i2c_scl_clock_deinit = i2c1_scl_clk_disable,
-    .i2c_sda_clock_deinit = i2c1_sda_clk_disable,
-    .i2c_force_reset = i2c1_force_reset,
-    .i2c_release_reset = i2c1_release_reset,
-    .sda_port = GPIOB,
-    .sda_pin = GPIO_PIN_9,
-    .sda_mode = GPIO_MODE_AF_OD,
-    .sda_pull = GPIO_PULLUP,
-    .sda_speed = GPIO_SPEED_FREQ_VERY_HIGH,
-    .sda_alternate = GPIO_AF4_I2C1,
-    .scl_port = GPIOB,
-    .scl_pin = GPIO_PIN_8,
-    .scl_mode = GPIO_MODE_AF_OD,
-    .scl_pull = GPIO_PULLUP,
-    .scl_speed = GPIO_SPEED_FREQ_VERY_HIGH,
-    .scl_alternate = GPIO_AF4_I2C1,
-    .i2c_onSlaveReceive = NULL,
-    .i2c_onSlaveTransmit = NULL,
-    .i2cTxRxBufferSize = 0
-  }
-};
+/*  Family specific description for I2C */
+#define I2C_NUM (5)
+static I2C_HandleTypeDef* i2c_handles[I2C_NUM];
 
 /**
   * @}
@@ -182,8 +112,6 @@ static i2c_init_info_t g_i2c_init_info[NB_I2C_INSTANCES] = {
 /** @addtogroup STM32F4xx_System_Private_FunctionPrototypes
   * @{
   */
-
-static i2c_instance_e i2c_Instance(I2C_HandleTypeDef *hi2c);
 
 /**
   * @}
@@ -196,267 +124,281 @@ static i2c_instance_e i2c_Instance(I2C_HandleTypeDef *hi2c);
 
 /**
   * @brief  Default init and setup GPIO and I2C peripheral
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @retval none
   */
-void i2c_init(i2c_instance_e i2c_id)
+void i2c_init(i2c_t *obj)
 {
-  i2c_custom_init(i2c_id, I2C_100KHz, I2C_ADDRESSINGMODE_7BIT, 0x33, 1);
+  i2c_custom_init(obj, I2C_100KHz, I2C_ADDRESSINGMODE_7BIT, 0x33, 1);
 }
 
 /**
   * @brief  Initialize and setup GPIO and I2C peripheral
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  timing : one of the i2c_timing_e
   * @param  addressingMode : I2C_ADDRESSINGMODE_7BIT or I2C_ADDRESSINGMODE_10BIT
   * @param  ownAddress : device address
   * @param  master : set to 1 to choose the master mode
   * @retval none
   */
-void i2c_custom_init(i2c_instance_e i2c_id, i2c_timing_e timing, uint32_t addressingMode, uint32_t ownAddress, uint8_t master)
+void i2c_custom_init(i2c_t *obj, i2c_timing_e timing, uint32_t addressingMode, uint32_t ownAddress, uint8_t master)
 {
+  if(obj == NULL)
+    return;
+
   GPIO_InitTypeDef  GPIO_InitStruct;
+  GPIO_TypeDef *port;
+  I2C_HandleTypeDef *handle = &(obj->handle);
 
-  if(g_i2c_init_info[i2c_id].init_done == 0) {
-    g_i2c_init_info[i2c_id].i2c_scl_clock_init();
-    g_i2c_init_info[i2c_id].i2c_sda_clock_init();
+  // Determine the I2C to use
+  uint32_t i2c_sda = pinmap_peripheral(obj->sda, PinMap_I2C_SDA);
+  uint32_t i2c_scl = pinmap_peripheral(obj->scl, PinMap_I2C_SCL);
 
-    //SCL
-    GPIO_InitStruct.Pin = g_i2c_init_info[i2c_id].scl_pin;
-    GPIO_InitStruct.Mode = g_i2c_init_info[i2c_id].scl_mode;
-    GPIO_InitStruct.Speed = g_i2c_init_info[i2c_id].scl_speed;
-    GPIO_InitStruct.Pull  = g_i2c_init_info[i2c_id].scl_pull;
-    GPIO_InitStruct.Alternate  = g_i2c_init_info[i2c_id].scl_alternate;
-    HAL_GPIO_Init(g_i2c_init_info[i2c_id].scl_port, &GPIO_InitStruct);
+  obj->i2c = (I2C_TypeDef *)pinmap_merge(i2c_sda, i2c_scl);
 
-    //SDA
-    GPIO_InitStruct.Pin = g_i2c_init_info[i2c_id].sda_pin;
-    GPIO_InitStruct.Mode = g_i2c_init_info[i2c_id].sda_mode;
-    GPIO_InitStruct.Speed = g_i2c_init_info[i2c_id].sda_speed;
-    GPIO_InitStruct.Pull  = g_i2c_init_info[i2c_id].sda_pull;
-    GPIO_InitStruct.Alternate  = g_i2c_init_info[i2c_id].sda_alternate;
-    HAL_GPIO_Init(g_i2c_init_info[i2c_id].sda_port, &GPIO_InitStruct);
-
-    //starting I2C
-    g_i2c_init_info[i2c_id].i2c_clock_init();
-    g_i2c_init_info[i2c_id].i2c_force_reset();
-    g_i2c_init_info[i2c_id].i2c_release_reset();
-
-    g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = timing;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.OwnAddress1 = ownAddress;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.OwnAddress2     = 0xFF;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.AddressingMode = addressingMode;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.DutyCycle       = I2C_DUTYCYCLE_2;//16_9;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-    g_i2c_init_info[i2c_id].i2c_handle.Init.NoStretchMode = I2C_NOSTRETCH_DISABLED;
-    g_i2c_init_info[i2c_id].i2c_handle.Instance = g_i2c_init_info[i2c_id].i2c_instance;
-
-    if(master == 0) {
-      HAL_NVIC_SetPriority(g_i2c_init_info[i2c_id].irq, 0, 1);
-      HAL_NVIC_EnableIRQ(g_i2c_init_info[i2c_id].irq);
-    }
-
-    // Init the I2C
-    HAL_I2C_Init(&g_i2c_init_info[i2c_id].i2c_handle);
-    g_i2c_init_info[i2c_id].init_done = 1;
+  if(obj->i2c == (I2C_TypeDef *)NC) {
+    printf("ERROR: I2C pins mismatch\n");
+    return;
   }
+
+#if defined I2C1_BASE
+  // Enable I2C1 clock if not done
+  if (obj->i2c == I2C1) {
+      __HAL_RCC_I2C1_CLK_ENABLE();
+      __HAL_RCC_I2C1_FORCE_RESET();
+      __HAL_RCC_I2C1_RELEASE_RESET();
+      obj->irq = I2C1_EV_IRQn;
+      i2c_handles[0] = handle;
+  }
+#endif
+#if defined I2C2_BASE
+  // Enable I2C2 clock if not done
+  if (obj->i2c == I2C2) {
+      __HAL_RCC_I2C2_CLK_ENABLE();
+      __HAL_RCC_I2C2_FORCE_RESET();
+      __HAL_RCC_I2C2_RELEASE_RESET();
+      obj->irq = I2C2_EV_IRQn;
+      i2c_handles[1] = handle;
+  }
+#endif
+#if defined I2C3_BASE
+  // Enable I2C3 clock if not done
+  if (obj->i2c == I2C3) {
+      __HAL_RCC_I2C3_CLK_ENABLE();
+      __HAL_RCC_I2C3_FORCE_RESET();
+      __HAL_RCC_I2C3_RELEASE_RESET();
+      obj->irq = I2C3_EV_IRQn;
+      i2c_handles[2] = handle;
+  }
+#endif
+#if defined I2C4_BASE
+  // Enable I2C3 clock if not done
+  if (obj->i2c == I2C4) {
+      __HAL_RCC_I2C4_CLK_ENABLE();
+      __HAL_RCC_I2C4_FORCE_RESET();
+      __HAL_RCC_I2C4_RELEASE_RESET();
+      obj->irq = I2C4_EV_IRQn;
+      i2c_handles[3] = handle;
+  }
+#endif
+
+  //SCL
+  port = set_GPIO_Port_Clock(STM_PORT(obj->scl));
+  GPIO_InitStruct.Pin         = STM_GPIO_PIN(obj->scl);
+  GPIO_InitStruct.Mode        = STM_PIN_MODE(pinmap_function(obj->scl,PinMap_I2C_SCL));
+  GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Pull        = STM_PIN_PUPD(pinmap_function(obj->scl,PinMap_I2C_SCL));
+  GPIO_InitStruct.Alternate   = STM_PIN_AFNUM(pinmap_function(obj->scl,PinMap_I2C_SCL));
+  HAL_GPIO_Init(port, &GPIO_InitStruct);
+
+  //SDA
+  port = set_GPIO_Port_Clock(STM_PORT(obj->sda));
+  GPIO_InitStruct.Pin         = STM_GPIO_PIN(obj->sda);
+  GPIO_InitStruct.Mode        = STM_PIN_MODE(pinmap_function(obj->sda,PinMap_I2C_SDA));
+  GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Pull        = STM_PIN_PUPD(pinmap_function(obj->sda,PinMap_I2C_SDA));
+  GPIO_InitStruct.Alternate   = STM_PIN_AFNUM(pinmap_function(obj->sda,PinMap_I2C_SDA));
+  HAL_GPIO_Init(port, &GPIO_InitStruct);
+
+  handle->Instance             = obj->i2c;
+  handle->Init.ClockSpeed      = timing;
+  handle->Init.OwnAddress1     = ownAddress;
+  handle->Init.OwnAddress2     = 0xFF;
+  handle->Init.AddressingMode  = addressingMode;
+  handle->Init.DutyCycle       = I2C_DUTYCYCLE_2;//16_9;
+  handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
+  handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
+  handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+
+  if(master == 0) {
+    HAL_NVIC_SetPriority(obj->irq, 0, 1);
+    HAL_NVIC_EnableIRQ(obj->irq);
+  }
+
+  // Init the I2C
+  HAL_I2C_Init(handle);
 }
 
 /**
   * @brief  Initialize and setup GPIO and I2C peripheral
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @retval none
   */
-void i2c_deinit(i2c_instance_e i2c_id)
+void i2c_deinit(i2c_t *obj)
 {
-  if(g_i2c_init_info[i2c_id].init_done == 1) {
-
-    g_i2c_init_info[i2c_id].i2c_scl_clock_deinit();
-    g_i2c_init_info[i2c_id].i2c_sda_clock_deinit();
-    g_i2c_init_info[i2c_id].i2c_clock_deinit();
-
-    HAL_NVIC_DisableIRQ(g_i2c_init_info[i2c_id].irq);
-
-    HAL_I2C_DeInit(&g_i2c_init_info[i2c_id].i2c_handle);
-
-    g_i2c_init_info[i2c_id].init_done = 0;
-  }
+  HAL_NVIC_DisableIRQ(obj->irq);
+  HAL_I2C_DeInit(&(obj->handle));
 }
 
 /**
   * @brief  Setup transmission speed. I2C must be configured before.
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  frequency : i2c transmission speed
   * @retval none
   */
-void i2c_setTiming(i2c_instance_e i2c_id, uint32_t frequency)
+void i2c_setTiming(i2c_t *obj, uint32_t frequency)
 {
-  if(g_i2c_init_info[i2c_id].init_done == 1) {
-    __HAL_I2C_DISABLE(&g_i2c_init_info[i2c_id].i2c_handle);
+  __HAL_I2C_DISABLE(&(obj->handle));
 
-    if(frequency <= 10000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_10KHz;
-    else if(frequency <= 50000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_50KHz;
-    else if(frequency <= 100000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_100KHz;
-    else if(frequency <= 200000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_200KHz;
-    else if(frequency <= 400000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_400KHz;
+  if(frequency <= 10000)
+    obj->handle.Init.ClockSpeed = I2C_10KHz;
+  else if(frequency <= 50000)
+    obj->handle.Init.ClockSpeed = I2C_50KHz;
+  else if(frequency <= 100000)
+    obj->handle.Init.ClockSpeed = I2C_100KHz;
+  else if(frequency <= 200000)
+    obj->handle.Init.ClockSpeed = I2C_200KHz;
+  else if(frequency <= 400000)
+    obj->handle.Init.ClockSpeed = I2C_400KHz;
 
 /*
-    else if(frequency <= 600000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_600KHz;
-    else if(frequency <= 800000)
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_800KHz;
-    else
-      g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_1000KHz;
+  else if(frequency <= 600000)
+    g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_600KHz;
+  else if(frequency <= 800000)
+    g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_800KHz;
+  else
+    g_i2c_init_info[i2c_id].i2c_handle.Init.ClockSpeed = I2C_1000KHz;
 */
-    HAL_I2C_Init(&g_i2c_init_info[i2c_id].i2c_handle);
-
-    __HAL_I2C_ENABLE(&g_i2c_init_info[i2c_id].i2c_handle);
-  }
+  HAL_I2C_Init(&(obj->handle));
+  __HAL_I2C_ENABLE(&(obj->handle));
 }
 
 /**
   * @brief  Write bytes at a given address
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  dev_address: specifies the address of the device.
   * @param  data: pointer to data to be write
   * @param  size: number of bytes to be write.
   * @retval read status
   */
-i2c_status_e i2c_master_write(i2c_instance_e i2c_id, uint8_t dev_address,
+i2c_status_e i2c_master_write(i2c_t *obj, uint8_t dev_address,
                         uint8_t *data, uint8_t size)
 
 {
   i2c_status_e ret = I2C_ERROR;
   HAL_StatusTypeDef status = HAL_OK;
 
-  if(g_i2c_init_info[i2c_id].init_done == 1) {
-    // Check the communication status
-    status = HAL_I2C_Master_Transmit(&g_i2c_init_info[i2c_id].i2c_handle, dev_address,
-                               data, size, I2C_TIMEOUT_TICK);
-    if(status == HAL_OK)
-      ret = I2C_OK;
-    else if(status == HAL_TIMEOUT)
-      ret = I2C_TIMEOUT;
-    else
-      ret = I2C_ERROR;
-  }
+  // Check the communication status
+  status = HAL_I2C_Master_Transmit(&(obj->handle), dev_address, data, size, I2C_TIMEOUT_TICK);
+
+  if(status == HAL_OK)
+    ret = I2C_OK;
+  else if(status == HAL_TIMEOUT)
+    ret = I2C_TIMEOUT;
+  else
+    ret = I2C_ERROR;
 
   return ret;
 }
 
 /**
   * @brief  Write bytes to master
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  data: pointer to data to be write
   * @param  size: number of bytes to be write.
   * @retval none
   */
-void i2c_slave_write_IT(i2c_instance_e i2c_id, uint8_t *data, uint8_t size)
+void i2c_slave_write_IT(i2c_t *obj, uint8_t *data, uint8_t size)
 {
   uint8_t i = 0;
 
-  if(g_i2c_init_info[i2c_id].init_done == 1) {
-    // Check the communication status
-    for(i = 0; i < size; i++) {
-      g_i2c_init_info[i2c_id].i2cTxRxBuffer[i] = *(data+i);
-      g_i2c_init_info[i2c_id].i2cTxRxBufferSize++;
-    }
+  // Check the communication status
+  for(i = 0; i < size; i++) {
+    obj->i2cTxRxBuffer[i] = *(data+i);
+    obj->i2cTxRxBufferSize++;
   }
 }
 
 /**
   * @brief  read bytes in master mode at a given address
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  dev_address: specifies the address of the device.
   * @param  data: pointer to data to be read
   * @param  size: number of bytes to be read.
   * @retval read status
   */
-i2c_status_e i2c_master_read(i2c_instance_e i2c_id, uint8_t dev_address,
-                              uint8_t *data, uint8_t size)
+i2c_status_e i2c_master_read(i2c_t *obj, uint8_t dev_address, uint8_t *data, uint8_t size)
 {
   i2c_status_e ret = I2C_ERROR;
 
-  if(g_i2c_init_info[i2c_id].init_done == 1) {
-
-    if(HAL_I2C_Master_Receive(&g_i2c_init_info[i2c_id].i2c_handle,
-                                dev_address, data, size,
-                               I2C_TIMEOUT_TICK) == HAL_OK) {
-      ret = I2C_OK;
-    }
-
+  if(HAL_I2C_Master_Receive(&(obj->handle), dev_address, data, size, I2C_TIMEOUT_TICK) == HAL_OK) {
+    ret = I2C_OK;
   }
+
   return ret;
 }
 
 /**
   * @brief  Checks if target device is ready for communication
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  devAddr: specifies the address of the device.
   * @param  trials : Number of trials.
   * @retval status
   */
-i2c_status_e i2c_IsDeviceReady(i2c_instance_e i2c_id, uint8_t devAddr,
-                               uint32_t trials)
+i2c_status_e i2c_IsDeviceReady(i2c_t *obj, uint8_t devAddr, uint32_t trials)
 {
   i2c_status_e ret = HAL_OK;
-  if(HAL_I2C_IsDeviceReady( &g_i2c_init_info[i2c_id].i2c_handle, devAddr,
-                            trials, I2C_TIMEOUT_TICK)!=HAL_OK) {
+
+  if(HAL_I2C_IsDeviceReady( &(obj->handle), devAddr, trials, I2C_TIMEOUT_TICK) != HAL_OK) {
     ret = I2C_BUSY;
   }
 
   return ret;
 }
 
-/**
-  * @brief  Checks if target device is ready for communication
-  * @param  i2c_id : i2c instance to use
-  * @param  devAddr: specifies the address of the device.
-  * @param  trials : Number of trials.
-  * @retval status
-  */
-i2c_instance_e i2c_Instance(I2C_HandleTypeDef *hi2c)
-{
-  int i = 0;
+/* Aim of the function is to get i2c_s pointer using hi2c pointer */
+/* Highly inspired from magical linux kernel's "container_of" */
+/* (which was not directly used since not compatible with IAR toolchain) */
+i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c){
+    struct i2c_s *obj_s;
+    i2c_t *obj;
 
-  for(i=0;i<NB_I2C_INSTANCES;i++) {
-    if(hi2c == &g_i2c_init_info[i].i2c_handle)
-      return i;
-  }
+    obj_s = (struct i2c_s *)( (char *)hi2c - offsetof(struct i2c_s,handle));
+    obj = (i2c_t *)( (char *)obj_s - offsetof(i2c_t,i2c));
 
-  return NB_I2C_INSTANCES;
+    return (obj);
 }
 
 /** @brief  sets function called before a slave read operation
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  function: callback function to use
   * @retval None
   */
-void i2c_attachSlaveRxEvent(i2c_instance_e i2c_id, void (*function)(i2c_instance_e, uint8_t*, int) )
+void i2c_attachSlaveRxEvent(i2c_t *obj, void (*function)(uint8_t*, int) )
 {
-  if(g_i2c_init_info[i2c_id].init_done == 1){
-    g_i2c_init_info[i2c_id].i2c_onSlaveReceive = function;
-    HAL_I2C_EnableListen_IT(&g_i2c_init_info[i2c_id].i2c_handle);
-  }
+  obj->i2c_onSlaveReceive = function;
+  HAL_I2C_EnableListen_IT(&(obj->handle));
 }
 
 /** @brief  sets function called before a slave write operation
-  * @param  i2c_id : i2c instance to use
+  * @param  obj : pointer to i2c_t structure
   * @param  function: callback function to use
   * @retval None
   */
-void i2c_attachSlaveTxEvent(i2c_instance_e i2c_id, void (*function)(i2c_instance_e) )
+void i2c_attachSlaveTxEvent(i2c_t *obj, void (*function)(void) )
 {
-  if(g_i2c_init_info[i2c_id].init_done == 1){
-    g_i2c_init_info[i2c_id].i2c_onSlaveTransmit = function;
-    HAL_I2C_EnableListen_IT(&g_i2c_init_info[i2c_id].i2c_handle);
-  }
+  obj->i2c_onSlaveTransmit = function;
+  HAL_I2C_EnableListen_IT(&(obj->handle));
 }
 
 /**
@@ -469,23 +411,22 @@ void i2c_attachSlaveTxEvent(i2c_instance_e i2c_id, void (*function)(i2c_instance
   */
 void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
+  i2c_t *obj = get_i2c_obj(hi2c);
+
   if(AddrMatchCode == hi2c->Init.OwnAddress1) {
     if(TransferDirection == I2C_DIRECTION_RECEIVE) {
 
-      g_i2c_init_info[i2c_Instance(hi2c)].i2cTxRxBufferSize = 0;
-      g_i2c_init_info[i2c_Instance(hi2c)].slaveMode = SLAVE_MODE_TRANSMIT;
+      obj->i2cTxRxBufferSize = 0;
+      obj->slaveMode = SLAVE_MODE_TRANSMIT;
 
-      if(g_i2c_init_info[i2c_Instance(hi2c)].i2c_onSlaveTransmit != NULL) {
-        g_i2c_init_info[i2c_Instance(hi2c)].i2c_onSlaveTransmit(i2c_Instance(hi2c));
+      if(obj->i2c_onSlaveTransmit != NULL) {
+        obj->i2c_onSlaveTransmit();
       }
-      HAL_I2C_Slave_Sequential_Transmit_IT(hi2c,
-                                           g_i2c_init_info[i2c_Instance(hi2c)].i2cTxRxBuffer,
-                                           g_i2c_init_info[i2c_Instance(hi2c)].i2cTxRxBufferSize,
-                                           I2C_LAST_FRAME);
+      HAL_I2C_Slave_Sequential_Transmit_IT(hi2c, obj->i2cTxRxBuffer,
+                                           obj->i2cTxRxBufferSize, I2C_LAST_FRAME);
     } else {
-      g_i2c_init_info[i2c_Instance(hi2c)].slaveMode = SLAVE_MODE_RECEIVE;
-      HAL_I2C_Slave_Sequential_Receive_IT(hi2c,
-                                          g_i2c_init_info[i2c_Instance(hi2c)].i2cTxRxBuffer,
+      obj->slaveMode = SLAVE_MODE_RECEIVE;
+      HAL_I2C_Slave_Sequential_Receive_IT(hi2c, obj->i2cTxRxBuffer,
                                           I2C_TXRX_BUFFER_SIZE, I2C_LAST_FRAME);
     }
   }
@@ -500,12 +441,13 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
 {
   uint8_t nbData = 0;
+  i2c_t *obj = get_i2c_obj(hi2c);
 
-  if((g_i2c_init_info[i2c_Instance(hi2c)].i2c_onSlaveReceive != NULL) &&
-    (g_i2c_init_info[i2c_Instance(hi2c)].slaveMode == SLAVE_MODE_RECEIVE)) {
-    nbData = I2C_TXRX_BUFFER_SIZE - g_i2c_init_info[i2c_Instance(hi2c)].i2c_handle.XferCount;
+  if((obj->i2c_onSlaveReceive != NULL) &&
+    (obj->slaveMode == SLAVE_MODE_RECEIVE)) {
+    nbData = I2C_TXRX_BUFFER_SIZE - obj->handle.XferCount;
     if(nbData != 0) {
-      g_i2c_init_info[i2c_Instance(hi2c)].i2c_onSlaveReceive(i2c_Instance(hi2c), g_i2c_init_info[i2c_Instance(hi2c)].i2cTxRxBuffer, nbData);
+      obj->i2c_onSlaveReceive(obj->i2cTxRxBuffer, nbData);
     }
   }
   HAL_I2C_EnableListen_IT(hi2c);
@@ -529,7 +471,8 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 */
 void I2C1_EV_IRQHandler(void)
 {
-  HAL_I2C_EV_IRQHandler(&g_i2c_init_info[I2C_1].i2c_handle);
+  I2C_HandleTypeDef * handle = i2c_handles[0];
+  HAL_I2C_EV_IRQHandler(handle);
 }
 
 /**
@@ -539,7 +482,74 @@ void I2C1_EV_IRQHandler(void)
 */
 void I2C1_ER_IRQHandler(void)
 {
-  HAL_I2C_ER_IRQHandler(&g_i2c_init_info[I2C_1].i2c_handle);
+  I2C_HandleTypeDef * handle = i2c_handles[0];
+  HAL_I2C_ER_IRQHandler(handle);
+}
+
+/**
+* @brief  This function handles I2C2 interrupt.
+* @param  None
+* @retval None
+*/
+void I2C2_EV_IRQHandler(void)
+{
+  I2C_HandleTypeDef * handle = i2c_handles[1];
+  HAL_I2C_EV_IRQHandler(handle);
+}
+
+/**
+* @brief  This function handles I2C2 interrupt.
+* @param  None
+* @retval None
+*/
+void I2C2_ER_IRQHandler(void)
+{
+  I2C_HandleTypeDef * handle = i2c_handles[1];
+  HAL_I2C_ER_IRQHandler(handle);
+}
+
+/**
+* @brief  This function handles I2C3 interrupt.
+* @param  None
+* @retval None
+*/
+void I2C3_EV_IRQHandler(void)
+{
+  I2C_HandleTypeDef * handle = i2c_handles[2];
+  HAL_I2C_EV_IRQHandler(handle);
+}
+
+/**
+* @brief  This function handles I2C3 interrupt.
+* @param  None
+* @retval None
+*/
+void I2C3_ER_IRQHandler(void)
+{
+  I2C_HandleTypeDef * handle = i2c_handles[2];
+  HAL_I2C_ER_IRQHandler(handle);
+}
+
+/**
+* @brief  This function handles I2C4 interrupt.
+* @param  None
+* @retval None
+*/
+void I2C4_EV_IRQHandler(void)
+{
+  I2C_HandleTypeDef * handle = i2c_handles[3];
+  HAL_I2C_EV_IRQHandler(handle);
+}
+
+/**
+* @brief  This function handles I2C4 interrupt.
+* @param  None
+* @retval None
+*/
+void I2C4_ER_IRQHandler(void)
+{
+  I2C_HandleTypeDef * handle = i2c_handles[3];
+  HAL_I2C_ER_IRQHandler(handle);
 }
 
 /**

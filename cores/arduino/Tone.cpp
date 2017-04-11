@@ -22,6 +22,7 @@
 #include "Arduino.h"
 
 PinName g_lastPin = NC;
+static stimer_t _timer;
 
 // frequency (in hertz) and duration (in milliseconds).
 
@@ -30,7 +31,8 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
   PinName p = digitalToPinName(_pin);
   if(p != NC) {
     if((g_lastPin == NC) || (g_lastPin == p)) {
-      TimerPinInit(p, frequency, duration);
+      _timer.pin = p;
+      TimerPinInit(&_timer, frequency, duration);
       g_lastPin = p;
     }
   }
@@ -41,7 +43,7 @@ void noTone(uint8_t _pin)
 {
   PinName p = digitalToPinName(_pin);
   if(p != NC) {
-    TimerPinDeinit(get_GPIO_Port(STM_PORT(p)), STM_GPIO_PIN(p));
+    TimerPinDeinit(&_timer);
     digitalWrite(_pin, 0);
     g_lastPin = NC;
   }

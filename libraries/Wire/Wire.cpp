@@ -27,11 +27,32 @@ extern "C" {
 
 #include "Wire.h"
 
+// Initialize Class Variables //////////////////////////////////////////////////
+uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
+uint8_t TwoWire::rxBufferIndex = 0;
+uint8_t TwoWire::rxBufferLength = 0;
+
+uint8_t TwoWire::txAddress = 0;
+uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
+uint8_t TwoWire::txBufferIndex = 0;
+uint8_t TwoWire::txBufferLength = 0;
+
+uint8_t TwoWire::transmitting = 0;
+void (*TwoWire::user_onRequest)(void);
+void (*TwoWire::user_onReceive)(int);
+
 // Constructors ////////////////////////////////////////////////////////////////
 
-TwoWire::TwoWire(i2c_instance_e i2c_instance)
+TwoWire::TwoWire()
 {
-  p_i2c_instance = i2c_instance;
+  _i2c.sda = digitalToPinName(SDA);
+  _i2c.scl = digitalToPinName(SCL);
+}
+
+TwoWire::TwoWire(uint8_t sda, uint8_t scl)
+{
+  _i2c.sda = digitalToPinName(sda);
+  _i2c.scl = digitalToPinName(scl);
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -58,11 +79,14 @@ void TwoWire::begin(uint8_t address)
   else
     master = false;
 
-  i2c_custom_init(p_i2c_instance,I2C_100KHz,I2C_ADDRESSINGMODE_7BIT,ownAddress,master);
+  i2c_custom_init(&_i2c,I2C_100KHz,I2C_ADDRESSINGMODE_7BIT,ownAddress,master);
 
   if(master == false){
-    i2c_attachSlaveTxEvent(p_i2c_instance, reinterpret_cast<void(*)(i2c_instance_e)>(&TwoWire::onRequestService));
-    i2c_attachSlaveRxEvent(p_i2c_instance, reinterpret_cast<void(*)(i2c_instance_e, uint8_t*, int)>(&TwoWire::onReceiveService));
+    // i2c_attachSlaveTxEvent(&_i2c, reinterpret_cast<void(*)(i2c_t*)>(&TwoWire::onRequestService));
+    // i2c_attachSlaveRxEvent(&_i2c, reinterpret_cast<void(*)(i2c_t*, uint8_t*, int)>(&TwoWire::onReceiveService));
+
+    i2c_attachSlaveTxEvent(&_i2c, onRequestService);
+    i2c_attachSlaveRxEvent(&_i2c, onReceiveService);
   }
 }
 
@@ -73,12 +97,12 @@ void TwoWire::begin(int address)
 
 void TwoWire::end(void)
 {
-  i2c_deinit(p_i2c_instance);
+  i2c_deinit(&_i2c);
 }
 
 void TwoWire::setClock(uint32_t frequency)
 {
-  i2c_setTiming(p_i2c_instance, frequency);
+  i2c_setTiming(&_i2c, frequency);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop)
@@ -99,7 +123,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
     // write internal register address - most significant byte first
     while (isize-- > 0)
       write((uint8_t)(iaddress >> (isize*8)));
-    endTransmission(false);
+      endTransmission(false);
     }
 
     // clamp to buffer length
@@ -109,7 +133,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
     // perform blocking read into buffer
     //uint8_t read = twi_readFrom(address, rxBuffer, quantity, sendStop);
     uint8_t read = 0;
-    if(I2C_OK == i2c_master_read(p_i2c_instance, address << 1, rxBuffer, quantity))
+    if(I2C_OK == i2c_master_read(&_i2c, address << 1, rxBuffer, quantity))
       read = quantity;
 
     // set rx buffer iterator vars
@@ -176,7 +200,7 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop)
 
   if (master == true) {
     // transmit buffer (blocking)
-    switch(i2c_master_write(p_i2c_instance, txAddress, txBuffer, txBufferLength))
+    switch(i2c_master_write(&_i2c, txAddress, txBuffer, txBufferLength))
     {
     case I2C_OK :
       ret = 0;
@@ -227,7 +251,7 @@ size_t TwoWire::write(uint8_t data)
   }else{
   // in slave send mode
     // reply to master
-    i2c_slave_write_IT(p_i2c_instance,&data,1);
+    i2c_slave_write_IT(&_i2c,&data,1);
   }
   return 1;
 }
@@ -245,7 +269,7 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
   }else{
   // in slave send mode
     // reply to master
-    i2c_slave_write_IT(p_i2c_instance,(uint8_t *)data,quantity);
+    i2c_slave_write_IT(&_i2c,(uint8_t *)data,quantity);
   }
   return quantity;
 }
@@ -297,77 +321,45 @@ void TwoWire::flush(void)
 }
 
 // behind the scenes function that is called when data is received
-void TwoWire::onReceiveService(i2c_instance_e p_i2c_instance, uint8_t* inBytes, int numBytes)
+void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
 {
-  TwoWire *ptr;
-
-  if(p_i2c_instance >= NB_I2C_INSTANCES) {
-    return;
-  } else {
-    switch(p_i2c_instance)
-    {
-    case I2C_1:
-      ptr = &Wire;
-    break;
-    default:
-      return;
-    break;
-    }
-  }
-
   // don't bother if user hasn't registered a callback
-  if(!ptr->user_onReceive){
+  if(!user_onReceive){
     return;
   }
 
   // don't bother if rx buffer is in use by a master requestFrom() op
   // i know this drops data, but it allows for slight stupidity
   // meaning, they may not have read all the master requestFrom() data yet
-  if(ptr->rxBufferIndex < ptr->rxBufferLength){
+  if(rxBufferIndex < rxBufferLength){
     return;
   }
   // copy twi rx buffer into local read buffer
   // this enables new reads to happen in parallel
   for(uint8_t i = 0; i < numBytes; ++i){
-    ptr->rxBuffer[i] = inBytes[i];
+    rxBuffer[i] = inBytes[i];
   }
   // set rx iterator vars
-  ptr->rxBufferIndex = 0;
-  ptr->rxBufferLength = numBytes;
+  rxBufferIndex = 0;
+  rxBufferLength = numBytes;
   // alert user program
-  ptr->user_onReceive(numBytes);
+  user_onReceive(numBytes);
 }
 
 // behind the scenes function that is called when data is requested
-void TwoWire::onRequestService(i2c_instance_e p_i2c_instance)
+void TwoWire::onRequestService(void)
 {
-  TwoWire *ptr;
-
-  if(p_i2c_instance >= NB_I2C_INSTANCES) {
-    return;
-  } else {
-    switch(p_i2c_instance)
-    {
-    case I2C_1:
-      ptr = &Wire;
-    break;
-    default:
-      return;
-    break;
-    }
-  }
-
   // don't bother if user hasn't registered a callback
-  if(!ptr->user_onRequest){
+  if(!user_onRequest){
     return;
   }
 
   // reset tx buffer iterator vars
   // !!! this will kill any pending pre-master sendTo() activity
-  ptr->txBufferIndex = 0;
-  ptr->txBufferLength = 0;
+  txBufferIndex = 0;
+  txBufferLength = 0;
   // alert user program
-  ptr->user_onRequest();
+  user_onRequest();
 }
 
 // sets function called on slave write
@@ -384,4 +376,4 @@ void TwoWire::onRequest( void (*function)(void) )
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
-TwoWire Wire = TwoWire(I2C_1); //D14-D15
+TwoWire Wire = TwoWire(); //D14-D15

@@ -36,28 +36,29 @@
 class TwoWire : public Stream
 {
   private:
-    uint8_t rxBuffer[BUFFER_LENGTH];
-    uint8_t rxBufferIndex;
-    uint8_t rxBufferLength;
+    static uint8_t rxBuffer[BUFFER_LENGTH];
+    static uint8_t rxBufferIndex;
+    static uint8_t rxBufferLength;
 
-    uint8_t txAddress;
-    uint8_t txBuffer[BUFFER_LENGTH];
-    uint8_t txBufferIndex;
-    uint8_t txBufferLength;
+    static uint8_t txAddress;
+    static uint8_t txBuffer[BUFFER_LENGTH];
+    static uint8_t txBufferIndex;
+    static uint8_t txBufferLength;
 
-    uint8_t transmitting;
+    static uint8_t transmitting;
 
     uint8_t ownAddress;
     bool master;
-    i2c_instance_e p_i2c_instance;
+    i2c_t _i2c;
 
-    void (*user_onRequest)(void);
-    void (*user_onReceive)(int);
-    static void onRequestService(i2c_instance_e);
-    static void onReceiveService(i2c_instance_e, uint8_t*, int);
+    static void (*user_onRequest)(void);
+    static void (*user_onReceive)(int);
+    static void onRequestService(void);
+    static void onReceiveService(uint8_t*, int);
 
   public:
-    TwoWire(i2c_instance_e i2c_instance);
+    TwoWire();
+    TwoWire(uint8_t sda, uint8_t scl);
     void begin();
     void begin(uint8_t);
     void begin(int);

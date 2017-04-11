@@ -121,7 +121,7 @@ uint32_t pinNametoPinNumber(PinName p);
 #define USER_BTN                81
 
 
-//SPI defintions
+//SPI definitions
 //define 16 channels. As many channel as digital IOs
 #define SPI_CHANNELS_NUM        16
 
@@ -129,17 +129,25 @@ uint32_t pinNametoPinNumber(PinName p);
 #define BOARD_SPI_DEFAULT_SS    10
 
 //In case SPI CS channel is not used we define a default one
-#define BOARD_SPI_OWN_SS        SPI_CHANNELS_NUM
+#define BOARD_SPI_OWN_SS    SPI_CHANNELS_NUM
 
-#define SPI_INTERFACES_COUNT    1
+#define SS    BOARD_SPI_DEFAULT_SS
+#define SS1   4
+#define SS2   7
+#define SS3   8
+#define MOSI  11
+#define MISO  12
+#define SCLK  13
 
-static const uint8_t SS   = BOARD_SPI_DEFAULT_SS;
-static const uint8_t SS1  = 4;
-static const uint8_t SS2  = 7;
-static const uint8_t SS3  = 8;
-static const uint8_t MOSI = 11;
-static const uint8_t MISO = 12;
-static const uint8_t SCK  = 13;
+//I2C Definitions
+#define SDA   14
+#define SCL   15
+
+//Timer Definitions
+//Do not use timer used by PWM pins when possible. See PinMap_PWM.
+#define TIMER_TONE          TIM6
+#define TIMER_UART_EMULATED TIM7
+#define TIMER_SERVO         TIM2 //Do not use basic timer: OC is required
 
 //Enable Firmata
 #define STM32 1

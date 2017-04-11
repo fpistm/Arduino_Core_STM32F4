@@ -41,6 +41,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "timer.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -86,7 +87,7 @@ int8_t uart_emul_read(uart_emul_id_e uart_id);
 size_t uart_emul_write(uart_emul_id_e uart_id, uint8_t data);
 int8_t uart_emul_peek(uart_emul_id_e uart_id);
 void uart_emul_flush(uart_emul_id_e uart_id);
-void uart_emul_attached_handler(void (*irqHandle)(void));
+void uart_emul_attached_handler(stimer_t *obj, void (*irqHandle)(void));
 
 #ifdef __cplusplus
 }

@@ -48,54 +48,29 @@
 #endif
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum {
-  TIM1_E = 0,
-  TIM2_E,
-  TIM3_E,
-  TIM4_E,
-  TIM6_E,
-  TIM7_E,
-  TIM8_E,
-  TIM9_E,
-  TIM10_E,
-  TIM11_E,
-  TIM12_E,
-  NB_TIMER_MANAGED
-} timer_id_e;
-
-typedef enum {
-  bits_8 = 0xFF,
-  bits_16 = 0xFFFF,
-  bits_32 = 0xFFFFFFFF
-} timer_prescaler_limit;
-
-typedef enum {
-  TIMER_PWM       = 0x00000000,
-  TIMER_RESERVED  = 0x00000001,
-  TIMER_OTHER     = 0x00000002
-} timer_mode_e;
+#define OFFSETOF(type, member) ((uint32_t) (&(((type *)(0))->member)))
 
 typedef struct{
-  GPIO_TypeDef * port;
-  uint32_t pin;
   int32_t count;
   uint8_t state;
-}timer_toggle_pin_config_str;
+}timerPinInfo_t;
 
-/// @brief defines the global attributes of the TIMER
-typedef struct {
-  TIM_TypeDef *timInstance;
-  IRQn_Type irqtype;
-  void (*irqHandle)(timer_id_e);
-  void (*irqHandleOC)(timer_id_e, uint32_t);
-  void (*timer_clock_init)(void);
-  void (*timer_clock_reset)(void);
-  uint32_t (*timer_clock_source)(void);
-  timer_mode_e timer_mode;
-  timer_prescaler_limit prescalerLimit;
-  timer_toggle_pin_config_str toggle_pin;
-  uint8_t configured;
-}timer_conf_t;
+typedef struct timer_s stimer_t;
+
+struct timer_s{
+  /*  The 1st 2 members TIM_TypeDef *timer
+     *  and TIM_HandleTypeDef handle should
+     *  be kept as the first members of this struct
+     *  to have get_timer_obj() function work as expected
+     */
+  TIM_TypeDef *timer;
+  TIM_HandleTypeDef handle;
+  uint8_t idx;
+  void (*irqHandle)(stimer_t *);
+  void (*irqHandleOC)(stimer_t *, uint32_t);
+  PinName pin;
+  timerPinInfo_t pinInfo;
+};
 
 /* Exported constants --------------------------------------------------------*/
 #define MAX_FREQ  65535
@@ -106,24 +81,21 @@ typedef struct {
 void timer_enable_clock(TIM_HandleTypeDef *htim);
 void timer_disable_clock(TIM_HandleTypeDef *htim);
 
-void TimerHandleInit(timer_id_e timer_id, uint16_t period, uint16_t prescaler);
-void TimerHandleDeinit(timer_id_e timer_id);
+void TimerHandleInit(stimer_t *obj, uint16_t period, uint16_t prescaler);
+void TimerHandleDeinit(stimer_t *obj);
 
-void TimerPinInit(PinName pin, uint32_t frequency, uint32_t duration);
-void TimerPinDeinit(GPIO_TypeDef *port, uint32_t pin);
+void TimerPinInit(stimer_t *obj, uint32_t frequency, uint32_t duration);
+void TimerPinDeinit(stimer_t *obj);
 
-void TimerPulseInit(timer_id_e timer_id, uint16_t period, uint16_t pulseWidth, void (*irqHandle)(timer_id_e, uint32_t));
-void TimerPulseDeinit(timer_id_e timer_id);
+void TimerPulseInit(stimer_t *obj, uint16_t period, uint16_t pulseWidth, void (*irqHandle)(stimer_t *, uint32_t));
+void TimerPulseDeinit(stimer_t *obj);
 
-timer_id_e getInactiveTimer(void);
-timer_id_e isPinAssociateToTimer(GPIO_TypeDef *port, uint32_t pin);
+uint32_t getTimerCounter(stimer_t *obj);
+void setTimerCounter(stimer_t *obj, uint32_t value);
+void setCCRRegister(stimer_t *obj, uint32_t channel, uint32_t value);
+uint32_t getCCRRegister(stimer_t *obj, uint32_t channel);
 
-uint32_t getTimerCounter(timer_id_e timer_id);
-void setTimerCounter(timer_id_e timer_id, uint32_t value);
-void setCCRRegister(timer_id_e timer_id, uint32_t channel, uint32_t value);
-uint32_t getCCRRegister(timer_id_e timer_id, uint32_t channel);
-
-void attachIntHandle(timer_id_e timer_id, void (*irqHandle)(timer_id_e));
+void attachIntHandle(stimer_t *obj, void (*irqHandle)(stimer_t *));
 
 #ifdef __cplusplus
 }

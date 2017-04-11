@@ -33,10 +33,9 @@ https://github.com/BlueVia/Official-Arduino
 */
 #include "GSM3SoftSerial.h"
 #include "GSM3IO.h"
-#include <stm/pgmspace.h>
+#include <avr/pgmspace.h>
 #include "pins_arduino.h"
 #include <HardwareSerial.h>
-#include <Arduino.h>
 
 #define __XON__ 0x11
 #define __XOFF__ 0x13
@@ -54,7 +53,7 @@ void GSM3SoftSerial::begin(long speed)
   _flags=0;
 
   uart_emul_init(UART1_EMUL_E,speed);
-  uart_emul_attached_handler(this->handle_interrupt);
+  uart_emul_attached_handler(&_timer, this->handle_interrupt);
 }
 
 void GSM3SoftSerial::close()

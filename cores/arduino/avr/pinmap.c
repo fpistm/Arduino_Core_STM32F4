@@ -67,3 +67,37 @@ bool pin_in_pinmap(PinName pin, const PinMap* map) {
   }
   return false;
 }
+
+uint32_t pinmap_merge(uint32_t a, uint32_t b) {
+    // both are the same (inc both NC)
+    if (a == b)
+        return a;
+
+    // one (or both) is not connected
+    if (a == (uint32_t)NC)
+        return b;
+    if (b == (uint32_t)NC)
+        return a;
+
+    // mis-match error case
+    // error("pinmap mis-match");
+    return (uint32_t)NC;
+}
+
+uint32_t timermap_irq(TIM_TypeDef *tim, const TimerMap* map) {
+  while (map->timer != NULL) {
+    if (map->timer == tim)
+      return map->irq;
+    map++;
+  }
+  return (uint32_t)0;
+}
+
+uint32_t timermap_clkSrc(TIM_TypeDef *tim, const TimerMap* map) {
+  while (map->timer != NULL) {
+    if (map->timer == tim)
+      return map->clk_src;
+    map++;
+  }
+  return (uint32_t)0;
+}

@@ -117,6 +117,7 @@ class SPISettings {
 class SPIClass {
   public:
     SPIClass();
+    SPIClass(uint8_t mosi, uint8_t miso, uint8_t sclk, uint8_t ssel);
 
     // Transfer functions
     byte transfer(byte _pin, uint8_t _data, SPITransferMode _mode = SPI_LAST);
@@ -176,10 +177,10 @@ class SPIClass {
     //uint32_t id;
     SPISettings spiSettings[SPI_CHANNELS_NUM+1];
     int8_t g_active_id;
+    uint8_t _pin;
+    spi_t _spi;
 };
 
-#if SPI_INTERFACES_COUNT > 0
 extern SPIClass SPI;
-#endif
 
 #endif

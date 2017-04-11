@@ -17,7 +17,7 @@
  ****************************************************/
 
 #include "Adafruit_ST7735.h"
-#include <stm/pgmspace.h>
+#include <avr/pgmspace.h>
 #include <limits.h>
 #include "pins_arduino.h"
 #include "wiring_private.h"

@@ -42,18 +42,37 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "PeripheralPins.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Exported types ------------------------------------------------------------*/
+/* offsetof is a gcc built-in function, this is the manual implementation */
+#define OFFSETOF(type, member) ((uint32_t) (&(((type *)(0))->member)))
 
-///@brief define the possible I2C instances
-typedef enum {
-  I2C_1,
-  NB_I2C_INSTANCES
-}i2c_instance_e;
+#define I2C_TXRX_BUFFER_SIZE    32
+
+typedef struct i2c_s i2c_t;
+
+struct i2c_s {
+  /*  The 1st 2 members I2CName i2c
+     *  and I2C_HandleTypeDef handle should
+     *  be kept as the first members of this struct
+     *  to have get_i2c_obj() function work as expected
+     */
+  I2C_TypeDef  *i2c;
+  I2C_HandleTypeDef handle;
+  PinName sda;
+  PinName scl;
+  IRQn_Type irq;
+  uint8_t slaveMode;
+  void (*i2c_onSlaveReceive)(uint8_t *, int);
+  void (*i2c_onSlaveTransmit)(void);
+  uint8_t i2cTxRxBuffer[I2C_TXRX_BUFFER_SIZE];
+  uint8_t i2cTxRxBufferSize;
+};
 
 ///@brief I2C state
 typedef enum {
@@ -77,21 +96,19 @@ typedef enum {
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void i2c_init(i2c_instance_e i2c_id);
-void i2c_custom_init(i2c_instance_e i2c_id, i2c_timing_e timing,
-                     uint32_t addressingMode, uint32_t ownAddress, uint8_t master);
-void i2c_deinit(i2c_instance_e i2c_id);
-void i2c_setTiming(i2c_instance_e i2c_id, uint32_t frequency);
-i2c_status_e i2c_master_write(i2c_instance_e i2c_id, uint8_t dev_address,
-                        uint8_t *data, uint8_t size);
-void i2c_slave_write_IT(i2c_instance_e i2c_id, uint8_t *data, uint8_t size);
-i2c_status_e i2c_master_read(i2c_instance_e i2c_id, uint8_t dev_address,
-                              uint8_t *data, uint8_t size);
+void i2c_init(i2c_t *obj);
+void i2c_custom_init(i2c_t *obj, i2c_timing_e timing, uint32_t addressingMode,
+                    uint32_t ownAddress, uint8_t master);
+void i2c_deinit(i2c_t *obj);
+void i2c_setTiming(i2c_t *obj, uint32_t frequency);
+i2c_status_e i2c_master_write(i2c_t *obj, uint8_t dev_address, uint8_t *data, uint8_t size);
+void i2c_slave_write_IT(i2c_t *obj, uint8_t *data, uint8_t size);
+i2c_status_e i2c_master_read(i2c_t *obj, uint8_t dev_address, uint8_t *data, uint8_t size);
 
-i2c_status_e i2c_IsDeviceReady(i2c_instance_e i2c_id, uint8_t devAddr,
-                               uint32_t trials);
-void i2c_attachSlaveRxEvent(i2c_instance_e i2c_id, void (*function)(i2c_instance_e, uint8_t*, int) );
-void i2c_attachSlaveTxEvent(i2c_instance_e i2c_id, void (*function)(i2c_instance_e) );
+i2c_status_e i2c_IsDeviceReady(i2c_t *obj, uint8_t devAddr,uint32_t trials);
+
+void i2c_attachSlaveRxEvent(i2c_t *obj, void (*function)(uint8_t*, int) );
+void i2c_attachSlaveTxEvent(i2c_t *obj, void (*function)(void) );
 
 #ifdef __cplusplus
 }
