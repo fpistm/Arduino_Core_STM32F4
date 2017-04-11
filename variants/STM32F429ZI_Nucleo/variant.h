@@ -148,7 +148,9 @@ uint32_t pinNametoPinNumber(PinName p);
 //Do not use timer used by PWM pins when possible. See PinMap_PWM.
 #define TIMER_TONE          TIM6
 #define TIMER_UART_EMULATED TIM7
-#define TIMER_SERVO         TIM2 //Do not use basic timer: OC is required
+
+//Do not use basic timer: OC is required
+#define TIMER_SERVO         TIM2  //TODO: advanced-control timers don't work
 
 //Enable Firmata
 #define STM32 1
