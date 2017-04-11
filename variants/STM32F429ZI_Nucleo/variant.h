@@ -138,6 +138,7 @@ uint32_t pinNametoPinNumber(PinName p);
 #define MOSI  11
 #define MISO  12
 #define SCLK  13
+#define SCK   SCLK
 
 //I2C Definitions
 #define SDA   14

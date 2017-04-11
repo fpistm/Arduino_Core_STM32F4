@@ -98,9 +98,9 @@ class Adafruit_ST7735 : public Adafruit_GFX {
 
  public:
 
-  Adafruit_ST7735(uint8_t CS, uint8_t RS, uint8_t SID, uint8_t SCLK,
-    uint8_t RST);
-  Adafruit_ST7735(uint8_t CS, uint8_t RS, uint8_t RST);
+  Adafruit_ST7735(uint8_t cs, uint8_t rs, uint8_t sid, uint8_t sclk,
+    uint8_t rst);
+  Adafruit_ST7735(uint8_t cs, uint8_t rs, uint8_t rst);
 
   void     initB(void),                             // for ST7735B displays
            initG(void),                             // for ILI9163C displays
