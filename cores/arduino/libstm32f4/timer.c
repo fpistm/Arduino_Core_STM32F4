@@ -101,7 +101,7 @@ static void HAL_TIMx_PeriodElapsedCallback(stimer_t *obj);
   */
 
 #define TIMER_NUM (22)
-static TIM_HandleTypeDef* timer_handles[TIMER_NUM];
+static TIM_HandleTypeDef* timer_handles[TIMER_NUM] = {NULL};
 
 
 /**
@@ -656,8 +656,13 @@ void attachIntHandle(stimer_t *obj, void (*irqHandle)(stimer_t *))
   */
 void TIM1_UP_TIM10_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[0]);
-  HAL_TIM_IRQHandler(timer_handles[9]);
+  if(timer_handles[0] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[0]);
+  }
+
+  if(timer_handles[9] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[9]);
+  }
 }
 
 
@@ -668,8 +673,13 @@ void TIM1_UP_TIM10_IRQHandler(void)
   */
 void TIM1_BRK_TIM9_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[0]);
-  HAL_TIM_IRQHandler(timer_handles[8]);
+  if(timer_handles[0] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[0]);
+  }
+
+  if(timer_handles[8] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[8]);
+  }
 }
 
 /**
@@ -679,8 +689,13 @@ void TIM1_BRK_TIM9_IRQHandler(void)
   */
 void TIM1_TRG_COM_TIM11_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[0]);
-  HAL_TIM_IRQHandler(timer_handles[10]);
+  if(timer_handles[0] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[0]);
+  }
+
+  if(timer_handles[10] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[10]);
+  }
 }
 
 /**
@@ -690,7 +705,9 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void)
   */
 void TIM1_CC_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[0]);
+  if(timer_handles[0] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[0]);
+  }
 }
 
 /**
@@ -700,7 +717,9 @@ void TIM1_CC_IRQHandler(void)
   */
 void TIM2_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[1]);
+  if(timer_handles[1] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[1]);
+  }
 }
 
 /**
@@ -710,7 +729,9 @@ void TIM2_IRQHandler(void)
   */
 void TIM3_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[2]);
+  if(timer_handles[2] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[2]);
+  }
 }
 
 /**
@@ -720,7 +741,9 @@ void TIM3_IRQHandler(void)
   */
 void TIM4_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[3]);
+  if(timer_handles[3] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[3]);
+  }
 }
 
 /**
@@ -730,7 +753,9 @@ void TIM4_IRQHandler(void)
   */
 void TIM5_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[4]);
+  if(timer_handles[4] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[4]);
+  }
 }
 
 /**
@@ -740,8 +765,9 @@ void TIM5_IRQHandler(void)
   */
 void TIM6_DAC_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[5]);
-
+  if(timer_handles[5] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[5]);
+  }
 }
 
 /**
@@ -751,7 +777,9 @@ void TIM6_DAC_IRQHandler(void)
   */
 void TIM7_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[6]);
+  if(timer_handles[6] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[6]);
+  }
 }
 
 /**
@@ -761,8 +789,13 @@ void TIM7_IRQHandler(void)
   */
 void TIM8_UP_TIM13_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[7]);
-  HAL_TIM_IRQHandler(timer_handles[12]);
+  if(timer_handles[7] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[7]);
+  }
+
+  if(timer_handles[12] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[12]);
+  }
 }
 
 
@@ -773,8 +806,13 @@ void TIM8_UP_TIM13_IRQHandler(void)
   */
 void TIM8_BRK_TIM12_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[7]);
-  HAL_TIM_IRQHandler(timer_handles[11]);
+  if(timer_handles[7] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[7]);
+  }
+
+  if(timer_handles[11] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[11]);
+  }
 }
 
 /**
@@ -784,8 +822,25 @@ void TIM8_BRK_TIM12_IRQHandler(void)
   */
 void TIM8_TRG_COM_TIM14_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(timer_handles[7]);
-  HAL_TIM_IRQHandler(timer_handles[13]);
+  if(timer_handles[7] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[7]);
+  }
+
+  if(timer_handles[13] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[13]);
+  }
+}
+
+/**
+  * @brief  TIM8 irq handler
+  * @param  None
+  * @retval None
+  */
+void TIM8_CC_IRQHandler(void)
+{
+  if(timer_handles[7] != NULL) {
+    HAL_TIM_IRQHandler(timer_handles[7]);
+  }
 }
 
 /**
