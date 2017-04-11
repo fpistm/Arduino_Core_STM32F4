@@ -48,8 +48,6 @@
   */
 #include "stm32f4xx.h"
 #include "hw_config.h"
-#include "timer.h"
-#include "digital_io.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -86,7 +84,6 @@
 /** @addtogroup STM32F4xx_System_Private_Variables
   * @{
   */
-static volatile uint32_t g_current_ms = 1;
 
 /**
   * @}
