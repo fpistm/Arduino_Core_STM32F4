@@ -24,7 +24,7 @@ SUBMAKE_OPTIONS=--no-builtin-rules --no-builtin-variables --no-print-directory
 # Rules
 #-------------------------------------------------------------------------------
 
-all : NUCLEO_F429ZI
+all : NUCLEO_F429ZI DISCO_F407VG
 
 .PHONY: all
 NUCLEO_F429ZI:
@@ -34,9 +34,18 @@ NUCLEO_F429ZI:
 	@$(MAKE) CHIP=STM32F429xx CHIP_STARTUP_FILE=startup_stm32f429xx.s LIBNAME=libstm32f4 CHIP_NAME=nucleo_f429zi VARIANTS_PATH=../../../variants/STM32F429ZI_Nucleo $(SUBMAKE_OPTIONS) -f stm32f4.mk
 	@echo ------------------------------------------------------------------------
 
+DISCO_F407VG:
+	@echo ------------------------------------------------------------------------
+	@echo --- Making $@
+	@echo ---
+	@$(MAKE) CHIP=STM32F407xx CHIP_STARTUP_FILE=startup_stm32f407xx.s LIBNAME=libstm32f4 CHIP_NAME=disco_f407vg VARIANTS_PATH=../../../variants/STM32F407VG_Disco $(SUBMAKE_OPTIONS) -f stm32f4.mk
+	@echo ------------------------------------------------------------------------
+
 .PHONY: clean
 clean:
 	@echo ------------------------------------------------------------------------
 	@echo --- Cleaning lib release and debug
 	@$(MAKE) CHIP=STM32F429xx CHIP_STARTUP_FILE=startup_stm32f429xx.s LIBNAME=libstm32f4 CHIP_NAME=nucleo_f429zi VARIANTS_PATH=../../../variants/STM32F429ZI_Nucleo $(SUBMAKE_OPTIONS) -f stm32f4.mk $@
+	@$(MAKE) CHIP=STM32F407xx CHIP_STARTUP_FILE=startup_stm32f407xx.s LIBNAME=libstm32f4 CHIP_NAME=disco_f407vg VARIANTS_PATH=../../../variants/STM32F407VG_Disco $(SUBMAKE_OPTIONS) -f stm32f4.mk $@
+
 	@echo ------------------------------------------------------------------------

@@ -39,3 +39,39 @@ NUCLEO_F429ZI.menu.upload_method.STLinkMethod.upload.protocol=STLink
 NUCLEO_F429ZI.menu.upload_method.STLinkMethod.upload.tool=stlink_upload
 
 ################################################################################
+# DISCO_F407VG board
+
+DISCO_F407VG.name=STM32F407G-DISC1
+
+DISCO_F407VG.vid.0=0x0483
+DISCO_F407VG.pid.0=0x5712B
+DISCO_F407VG.node=DIS_F407VG
+
+DISCO_F407VG.upload.tool=nucleoFlasher
+DISCO_F407VG.upload.protocol=nucleoFlasher
+DISCO_F407VG.upload.maximum_size=1048576
+DISCO_F407VG.upload.maximum_data_size=196608
+
+DISCO_F407VG.build.mcu=cortex-m4
+DISCO_F407VG.build.f_cpu=16000000L
+DISCO_F407VG.build.vid=0x0483
+DISCO_F407VG.build.pid=0x5712B
+DISCO_F407VG.build.usb_product="DISCO-F407G"
+DISCO_F407VG.build.board=DISCO_F407VG
+DISCO_F407VG.build.core=arduino
+DISCO_F407VG.build.ldscript=linker_scripts/gcc/STM32F407VGTx_FLASH.ld
+DISCO_F407VG.build.variant=STM32F407VG_Disco
+DISCO_F407VG.build.variant_system_lib=libstm32f4_disco_f407vg_gcc_rel.a
+#To enable USB add '-DUSBCON'
+#To enable HID (keyboard and mouse support) add also '-DUSBD_USE_HID_COMPOSITE'
+DISCO_F407VG.build.extra_flags=-mthumb -DSTM32F407xx {build.usb_flags}
+
+DISCO_F407VG.menu.upload_method.MassStorageMethod=Mass Storage
+DISCO_F407VG.menu.upload_method.MassStorageMethod.upload.protocol=
+DISCO_F407VG.menu.upload_method.MassStorageMethod.upload.tool=nucleoFlasher
+
+DISCO_F407VG.menu.upload_method.STLinkMethod=STLink
+DISCO_F407VG.menu.upload_method.STLinkMethod.upload.protocol=STLink
+DISCO_F407VG.menu.upload_method.STLinkMethod.upload.tool=stlink_upload
+
+################################################################################
