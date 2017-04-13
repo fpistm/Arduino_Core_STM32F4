@@ -33,9 +33,9 @@
 #include "timer.h"
 #include "twi.h"
 #include "stm32_eeprom.h"
-#include "usbd_desc.h"
-#include "usbd_hid_composite.h"
+#ifdef USBCON
 #include "usb_interface.h"
+#endif //USBCON
 
 /* Define attribute */
 #if defined (  __GNUC__  ) /* GCC CS3 */

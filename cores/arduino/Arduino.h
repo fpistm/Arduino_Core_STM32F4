@@ -58,15 +58,17 @@ extern void loop( void ) ;
 
 #ifdef __cplusplus
 } // extern "C"
+#endif // __cplusplus
 
+#ifdef __cplusplus
 #include "WCharacter.h"
 #include "WString.h"
 #include "Tone.h"
 #include "WMath.h"
 #include "HardwareSerial.h"
 #include "wiring_pulse.h"
-
 #endif // __cplusplus
+
 
 // Include board variant
 #include "variant.h"

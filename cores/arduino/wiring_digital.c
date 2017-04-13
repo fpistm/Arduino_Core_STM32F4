@@ -28,7 +28,7 @@ uint32_t g_digPinConfigured[MAX_NB_PORT] = {0};
 extern uint32_t g_anOutputPinConfigured[MAX_NB_PORT];
 
 
-extern void pinMode( uint32_t ulPin, uint32_t ulMode )
+void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
   PinName p = digitalToPinName(ulPin);
 
@@ -64,7 +64,7 @@ extern void pinMode( uint32_t ulPin, uint32_t ulMode )
   }
 }
 
-extern void digitalWrite( uint32_t ulPin, uint32_t ulVal )
+void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
   PinName p = digitalToPinName(ulPin);
   if(p != NC) {
@@ -74,7 +74,7 @@ extern void digitalWrite( uint32_t ulPin, uint32_t ulVal )
   }
 }
 
-extern int digitalRead( uint32_t ulPin )
+int digitalRead( uint32_t ulPin )
 {
   uint8_t level = 0;
   PinName p = digitalToPinName(ulPin);

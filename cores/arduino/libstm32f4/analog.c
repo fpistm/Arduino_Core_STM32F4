@@ -564,7 +564,7 @@ void pwm_start(PinName pin, uint32_t clock_freq,
     return;
   }
 
-  if(STM_PIN_INVERTED(pinmap_function(g_current_pin, PinMap_PWM))) {
+  if(STM_PIN_INVERTED(pinmap_function(pin, PinMap_PWM))) {
     HAL_TIMEx_PWMN_Start(&timHandle, timChannel);
   } else {
     HAL_TIM_PWM_Start(&timHandle, timChannel);
