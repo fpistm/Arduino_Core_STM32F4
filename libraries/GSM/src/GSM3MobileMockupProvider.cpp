@@ -8,9 +8,9 @@ This file is part of the GSM3 communications library for Arduino
 -- TCP/IP connections
 -- HTTP basic clients
 
-This library has been developed by Telefónica Digital - PDI -
+This library has been developed by Telefï¿½nica Digital - PDI -
 - Physical Internet Lab, as part as its collaboration with
-Arduino and the Open Hardware Community. 
+Arduino and the Open Hardware Community.
 
 September-December 2012
 
@@ -34,7 +34,7 @@ https://github.com/BlueVia/Official-Arduino
 #include <GSM3MobileNetworkProvider.h>
 #include <GSM3MobileMockupProvider.h>
 #include <inttypes.h>
-#include <HardwareSerial.h>
+// #include <HardwareSerial.h>
 #include <Arduino.h>
 
 
@@ -191,4 +191,3 @@ bool GSM3MobileMockupProvider::getSocketModemStatus(uint8_t s)
 	// Feeling lazy
 	return true;
 }
-
