@@ -112,12 +112,9 @@ extern int _read(UNUSED(int file), UNUSED(char *ptr), UNUSED(int len) )
 
 extern int _write( UNUSED(int file), char *ptr, int len )
 {
-  int iIndex = 0;
+  uart_debug_write(ptr, len);
 
-  for ( iIndex=0 ; iIndex < len ; iIndex++) {
-    uart_write(USART3_E, ptr[iIndex]);
-  }
-  return iIndex ;
+  return len ;
 }
 
 extern void _exit( int status )
